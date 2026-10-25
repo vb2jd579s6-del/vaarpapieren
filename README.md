@@ -59,6 +59,17 @@ src-tauri/
   src/files.rs         kopiëren naar de app-datamap, openen, verwijderen
 ```
 
+**App-icoon:** de bron is `src-tauri/icons/source/app-icon.svg`, met het schild en het schip uit het Tharsis-logo nagetekend als vector. Na een wijziging maak je alle formaten opnieuw:
+
+```bash
+cd src-tauri/icons/source
+swift render.swift app-icon.svg app-icon.png 1024
+swift render.swift tray-template.svg ../tray-template.png 64
+cd ../../.. && npx tauri icon src-tauri/icons/source/app-icon.png && rm -r src-tauri/icons/android src-tauri/icons/ios
+```
+
+De menubalk op macOS gebruikt `tray-template.png`: een zwart sjabloon dat macOS zelf kleurt voor een lichte of donkere menubalk. Windows toont het gekleurde app-icoon in het systeemvak. Toont het Dock nog het oude icoon, voer dan `killall Dock` uit.
+
 **Vertalen:** kopieer `src/i18n/nl.ts` naar bijvoorbeeld `en.ts`, vertaal de teksten en kies de taal in `src/i18n/index.ts`. TypeScript controleert dan of er geen tekst ontbreekt.
 
 ### Waar staan de gegevens?

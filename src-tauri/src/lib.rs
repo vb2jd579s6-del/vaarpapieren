@@ -87,6 +87,15 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
             "quit" => app.exit(0),
             _ => {}
         });
+    // macOS: a monochrome template image, which the menu bar tints for light and dark mode.
+    // Windows: the coloured app icon, like other apps in the system tray.
+    #[cfg(target_os = "macos")]
+    {
+        tray = tray
+            .icon(tauri::image::Image::from_bytes(include_bytes!("../icons/tray-template.png"))?)
+            .icon_as_template(true);
+    }
+    #[cfg(not(target_os = "macos"))]
     if let Some(icon) = app.default_window_icon() {
         tray = tray.icon(icon.clone());
     }
