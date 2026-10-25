@@ -1,15 +1,27 @@
+import { de } from "./de";
 import { en } from "./en";
+import { es } from "./es";
+import { fr } from "./fr";
 import { nl, type Messages } from "./nl";
+import { tl } from "./tl";
 
-export const LANGUAGES = { nl, en } satisfies Record<string, Messages>;
+/** Keys are BCP 47 language tags (also used for <html lang>); the picker lists them in this order. */
+export const LANGUAGES = { nl, en, de, es, fr, tl } satisfies Record<string, Messages>;
 export type Language = keyof typeof LANGUAGES;
 export const DEFAULT_LANGUAGE: Language = "nl";
 
 /** Each language's name in that language, for the picker. */
-export const LANGUAGE_NAMES: Record<Language, string> = { nl: "Nederlands", en: "English" };
+export const LANGUAGE_NAMES: Record<Language, string> = {
+  nl: "Nederlands",
+  en: "English",
+  de: "Deutsch",
+  es: "Español",
+  fr: "Français",
+  tl: "Tagalog (Filipino)",
+};
 
 export function isLanguage(value: unknown): value is Language {
-  return typeof value === "string" && value in LANGUAGES;
+  return typeof value === "string" && Object.prototype.hasOwnProperty.call(LANGUAGES, value);
 }
 
 /**

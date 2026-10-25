@@ -26,8 +26,9 @@ describe("i18n", () => {
   });
 
   it("recognises supported languages only", () => {
-    expect(isLanguage("en")).toBe(true);
-    expect(isLanguage("de")).toBe(false);
+    for (const lang of ["nl", "en", "de", "es", "fr", "tl"]) expect(isLanguage(lang)).toBe(true);
+    expect(isLanguage("pt")).toBe(false);
+    expect(isLanguage("toString")).toBe(false);
     expect(isLanguage(undefined)).toBe(false);
   });
 });
