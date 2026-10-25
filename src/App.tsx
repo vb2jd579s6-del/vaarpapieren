@@ -37,8 +37,8 @@ export default function App() {
         </button>
       </header>
       <main className="content">
-        {page === "overview" && <Overview />}
-        {page === "add" && <Add />}
+        {page === "overview" && <Overview onAdd={() => setPage("add")} />}
+        {page === "add" && <Add onSaved={() => setPage("overview")} />}
         {page === "settings" && <Settings />}
       </main>
     </div>

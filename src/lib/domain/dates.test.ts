@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysBetween, formatDate, isValidIsoDate, todayIso } from "./dates";
+import { daysBetween, formatDate, isValidIsoDate, parseDisplayDate, todayIso } from "./dates";
 
 describe("dates", () => {
   it("counts calendar days", () => {
@@ -27,5 +27,13 @@ describe("dates", () => {
   });
   it("gives local today", () => {
     expect(todayIso(new Date(2026, 0, 5, 23, 59))).toBe("2026-01-05");
+  });
+  it("parses dd-mm-yyyy input", () => {
+    expect(parseDisplayDate("05-10-2026")).toBe("2026-10-05");
+    expect(parseDisplayDate(" 5/1/2026 ")).toBe("2026-01-05");
+    expect(parseDisplayDate("29.02.2028")).toBe("2028-02-29");
+    expect(parseDisplayDate("29-02-2026")).toBeNull();
+    expect(parseDisplayDate("2026-10-05")).toBeNull();
+    expect(parseDisplayDate("")).toBeNull();
   });
 });

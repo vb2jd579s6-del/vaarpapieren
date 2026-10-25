@@ -35,3 +35,11 @@ export function formatDate(iso: string | null): string {
   const [y, m, d] = iso.split("-");
   return `${d}-${m}-${y}`;
 }
+
+/** dd-mm-yyyy (also with / or . and without leading zeros) to ISO; null when it is not a real date. */
+export function parseDisplayDate(text: string): string | null {
+  const m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(text.trim());
+  if (!m) return null;
+  const iso = `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  return isValidIsoDate(iso) ? iso : null;
+}

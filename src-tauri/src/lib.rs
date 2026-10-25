@@ -1,10 +1,25 @@
+mod files;
+
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, WindowEvent,
 };
+use tauri_plugin_sql::{Migration, MigrationKind};
 
 const MAIN_WINDOW: &str = "main";
+
+/// Must match DB_URL in src/lib/db/connection.ts.
+const DB_URL: &str = "sqlite:vaarpapieren.db";
+
+fn migrations() -> Vec<Migration> {
+    vec![Migration {
+        version: 1,
+        description: "init",
+        sql: include_str!("../migrations/0001_init.sql"),
+        kind: MigrationKind::Up,
+    }]
+}
 
 /// Event the frontend listens for to run a check right away (tray menu: "Nu controleren").
 const EVENT_CHECK_NOW: &str = "check-now";
@@ -49,7 +64,11 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             show_main_window(app);
         }))
-        .plugin(tauri_plugin_sql::Builder::default().build())
+        .plugin(
+            tauri_plugin_sql::Builder::default()
+                .add_migrations(DB_URL, migrations())
+                .build(),
+        )
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -58,6 +77,10 @@ pub fn run() {
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec!["--hidden"]),
         ))
+        .invoke_handler(tauri::generate_handler![
+            files::import_document_file,
+            files::remove_document_file
+        ])
         .setup(|app| {
             setup_tray(app.handle())?;
             // Started by autostart: stay in the tray without showing the window.
