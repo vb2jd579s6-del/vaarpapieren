@@ -1,5 +1,6 @@
 import { createClass, deleteEmptyClass, updateClass } from "./db/classes";
 import type { Db } from "./db/types";
+import { clearNotified } from "./db/notificationLog";
 import { createVersion, deleteVersion, updateVersion } from "./db/versions";
 import type { DocumentForm, EditForm, ValidDocument } from "./domain/documentForm";
 import type { Category, DocumentClass, DocumentVersion } from "./domain/types";
@@ -77,6 +78,7 @@ export async function updateDocument(
       notes: orNull(form.notes),
       ...file,
     });
+    if (valid.expiryDate !== version.expiry_date) await clearNotified(db, version.id);
   } catch (err) {
     if (newFile) await removeDocumentFile(newFile.file_path).catch(() => {});
     throw err;

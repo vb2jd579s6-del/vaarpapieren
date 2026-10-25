@@ -4,15 +4,16 @@ import type { OverviewItem } from "../lib/domain/overview";
 import { expiryText } from "../lib/expiryText";
 import { DocumentActions, type VersionHandlers } from "./DocumentActions";
 import { StatusBadge } from "./StatusBadge";
-import { useVersionSelection, VersionNavigator } from "./VersionNavigator";
+import { useFocus, useVersionSelection, VersionNavigator } from "./VersionNavigator";
 
-export function DocumentCard({ item, handlers }: { item: OverviewItem; handlers: VersionHandlers }) {
+export function DocumentCard({ item, handlers, focusVersionId }: { item: OverviewItem; handlers: VersionHandlers; focusVersionId?: number }) {
   const { documentClass, versions, status } = item;
-  const { version, index, isCurrent, older, newer } = useVersionSelection(item);
+  const { version, index, isCurrent, older, newer } = useVersionSelection(item, focusVersionId);
+  const { focused, focusRef } = useFocus<HTMLElement>(item, focusVersionId);
   const shownStatus = isCurrent ? status : "superseded";
 
   return (
-    <article className={`card status-${shownStatus}`}>
+    <article ref={focusRef} className={`card status-${shownStatus}${focused ? " focused" : ""}`}>
       <header className="card-head">
         <div>
           <h3>{documentClass.name}</h3>

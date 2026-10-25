@@ -14,6 +14,7 @@ import { todayIso } from "../lib/domain/dates";
 import { buildOverview, filterOverview, type OverviewItem } from "../lib/domain/overview";
 import { CATEGORIES, type Category, type DocumentClass, type DocumentVersion } from "../lib/domain/types";
 import { FILE_NOT_FOUND, openDocumentFile } from "../lib/files";
+import { sendTestNotification } from "../lib/notifications";
 
 type View = "grid" | "list";
 
@@ -30,12 +31,13 @@ interface Message {
   detail?: string;
 }
 
-export function Overview({ onAdd }: { onAdd: () => void }) {
+export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVersionId?: number }) {
   const [items, setItems] = useState<OverviewItem[] | null>(null);
   const [classes, setClasses] = useState<DocumentClass[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [message, setMessage] = useState<Message | null>(null);
+  const [showIntro, setShowIntro] = useState(false);
   const [view, setView] = useState<View>("grid");
   const [category, setCategory] = useState<Category | null>(null);
   const [query, setQuery] = useState("");
@@ -51,9 +53,14 @@ export function Overview({ onAdd }: { onAdd: () => void }) {
     let cancelled = false;
     (async () => {
       try {
-        const savedView = await getSetting(await getDb(), SETTING_KEYS.overviewView);
+        const db = await getDb();
+        const [savedView, introDone] = await Promise.all([
+          getSetting(db, SETTING_KEYS.overviewView),
+          getSetting(db, SETTING_KEYS.notificationsIntroDone),
+        ]);
         if (cancelled) return;
         if (savedView === "grid" || savedView === "list") setView(savedView);
+        setShowIntro(introDone === undefined);
         await reload();
       } catch (err) {
         if (!cancelled) setError(String(err));
@@ -139,6 +146,36 @@ export function Overview({ onAdd }: { onAdd: () => void }) {
     </>
   );
 
+  const dismissIntro = () => {
+    setShowIntro(false);
+    getDb()
+      .then((db) => setSetting(db, SETTING_KEYS.notificationsIntroDone, "1"))
+      .catch((err) => console.error("Could not save intro setting", err));
+  };
+
+  const intro = showIntro && (
+    <div className="notice">
+      <strong>{t.notifications.introTitle}</strong>
+      <p className="small">{t.notifications.intro}</p>
+      <div className="actions">
+        <button
+          className="btn btn-small btn-primary"
+          onClick={() =>
+            sendTestNotification().then(
+              (ok) => !ok && setMessage({ kind: "error", text: t.settings.permissionDenied }),
+              (err) => setMessage({ kind: "error", text: t.settings.error, detail: String(err) }),
+            )
+          }
+        >
+          {t.notifications.introTest}
+        </button>
+        <button className="btn btn-small" onClick={dismissIntro}>
+          {t.notifications.introDone}
+        </button>
+      </div>
+    </div>
+  );
+
   const banner = message && (
     <div className={`notice${message.kind === "error" ? " notice-error" : ""}`} role="status">
       <div className="notice-row">
@@ -155,6 +192,7 @@ export function Overview({ onAdd }: { onAdd: () => void }) {
     return (
       <div className="empty">
         {banner}
+        {intro}
         <p className="muted">{t.overview.empty}</p>
         <button className="btn btn-primary" onClick={onAdd}>
           {t.overview.addFirst}
@@ -166,6 +204,7 @@ export function Overview({ onAdd }: { onAdd: () => void }) {
   return (
     <>
       {banner}
+      {intro}
       <div className="toolbar">
         <input
           type="search"
@@ -203,11 +242,11 @@ export function Overview({ onAdd }: { onAdd: () => void }) {
       ) : view === "grid" ? (
         <div className="card-grid">
           {visible.map((item) => (
-            <DocumentCard key={item.documentClass.id} item={item} handlers={handlers} />
+            <DocumentCard key={item.documentClass.id} item={item} handlers={handlers} focusVersionId={focusVersionId} />
           ))}
         </div>
       ) : (
-        <DocumentTable items={visible} handlers={handlers} />
+        <DocumentTable items={visible} handlers={handlers} focusVersionId={focusVersionId} />
       )}
       {dialogs}
     </>

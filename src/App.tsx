@@ -1,6 +1,7 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Tabs, type TabItem } from "./components/Tabs";
 import { t } from "./i18n";
+import { startNotificationService } from "./lib/notifications";
 import { Add } from "./pages/Add";
 import { Overview } from "./pages/Overview";
 import { Settings } from "./pages/Settings";
@@ -18,7 +19,19 @@ const TABS: TabItem<"overview" | "add">[] = [
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [page, setPage] = useState<Page>("overview");
+  /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
+  const [focus, setFocus] = useState<{ versionId: number; nonce: number } | null>(null);
   const endSplash = useCallback(() => setShowSplash(false), []);
+
+  useEffect(
+    () =>
+      startNotificationService((versionId) => {
+        setShowSplash(false);
+        setPage("overview");
+        setFocus({ versionId, nonce: Date.now() });
+      }),
+    [],
+  );
 
   if (showSplash) return <Splash onDone={endSplash} />;
 
@@ -37,7 +50,7 @@ export default function App() {
         </button>
       </header>
       <main className="content">
-        {page === "overview" && <Overview onAdd={() => setPage("add")} />}
+        {page === "overview" && <Overview key={focus?.nonce} focusVersionId={focus?.versionId} onAdd={() => setPage("add")} />}
         {page === "add" && <Add onSaved={() => setPage("overview")} />}
         {page === "settings" && <Settings />}
       </main>

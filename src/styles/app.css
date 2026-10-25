@@ -186,3 +186,20 @@ textarea.input { resize: vertical; }
 .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 .fieldset { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px 14px; margin: 0; display: flex; flex-direction: column; gap: 12px; }
 .fieldset legend { font-weight: 600; padding: 0 6px; }
+
+.card.focused, .doc-table tr.focused td { box-shadow: 0 0 0 2px var(--accent); }
+.card.focused { animation: pulse 1.2s ease-out 2; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 35%, transparent); } }
+.notice p { margin: 6px 0 10px; }
+.notice .actions { padding: 0; }
+
+/* Settings */
+.section-title { margin: 0; font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 4px 3px 10px; font-size: 13px; }
+.chip button { border: 0; background: none; color: var(--text-muted); width: 20px; height: 20px; border-radius: 50%; font-size: 11px; }
+.chip button:hover { background: var(--border); color: var(--text); }
+.inline-form { display: flex; gap: 8px; align-items: center; }
+.inline-form .input { width: 140px; }
+.input-error { border-color: var(--critical); }
+.path { font-size: 12px; background: var(--surface-2); border-radius: 6px; padding: 6px 8px; word-break: break-all; user-select: text; }

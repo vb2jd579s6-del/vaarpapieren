@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { createClass, deleteEmptyClass, findClassByName, listClasses } from "./classes";
-import { getSetting, setSetting } from "./settings";
+import { clearNotified, listNotificationLog, markNotified } from "./notificationLog";
+import { getSetting, getThresholds, setSetting, setThresholds } from "./settings";
 import { createTestDb } from "./testDb";
 import type { Db } from "./types";
 import { createVersion, listVersions, type NewVersion } from "./versions";
@@ -64,5 +65,25 @@ describe("repositories", () => {
     await setSetting(db, "overview_view", "list");
     await setSetting(db, "overview_view", "grid");
     expect(await getSetting(db, "overview_view")).toBe("grid");
+  });
+
+  it("stores thresholds, falling back to the defaults", async () => {
+    expect(await getThresholds(db)).toEqual([90, 60, 30, 14, 7, 1, 0]);
+    await setThresholds(db, [7, 30, 7]);
+    expect(await getThresholds(db)).toEqual([30, 7]);
+    await setThresholds(db, []);
+    expect(await getThresholds(db)).toEqual([]);
+    await setSetting(db, "notification_thresholds", "garbage");
+    expect(await getThresholds(db)).toEqual([90, 60, 30, 14, 7, 1, 0]);
+  });
+
+  it("logs each threshold once per version", async () => {
+    const id = await createClass(db, "BST", "STCW");
+    const v = await createVersion(db, version(id, "2021-01-01", "2026-01-01"));
+    await markNotified(db, v, [90, 60]);
+    await markNotified(db, v, [60, 30]);
+    expect((await listNotificationLog(db)).map((r) => r.threshold_days).sort()).toEqual([30, 60, 90]);
+    await clearNotified(db, v);
+    expect(await listNotificationLog(db)).toEqual([]);
   });
 });

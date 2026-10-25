@@ -4,15 +4,16 @@ import type { OverviewItem } from "../lib/domain/overview";
 import { expiryText } from "../lib/expiryText";
 import { DocumentActions, type VersionHandlers } from "./DocumentActions";
 import { StatusBadge } from "./StatusBadge";
-import { useVersionSelection, VersionNavigator } from "./VersionNavigator";
+import { useFocus, useVersionSelection, VersionNavigator } from "./VersionNavigator";
 
-function DocumentRow({ item, handlers }: { item: OverviewItem; handlers: VersionHandlers }) {
+function DocumentRow({ item, handlers, focusVersionId }: { item: OverviewItem; handlers: VersionHandlers; focusVersionId?: number }) {
   const { documentClass, versions, status } = item;
-  const { version, index, isCurrent, older, newer } = useVersionSelection(item);
+  const { version, index, isCurrent, older, newer } = useVersionSelection(item, focusVersionId);
+  const { focused, focusRef } = useFocus<HTMLTableRowElement>(item, focusVersionId);
   const shownStatus = isCurrent ? status : "superseded";
 
   return (
-    <tr className={`status-${shownStatus}`}>
+    <tr ref={focusRef} className={`status-${shownStatus}${focused ? " focused" : ""}`}>
       <td>
         <strong>{documentClass.name}</strong>
         <VersionNavigator index={index} total={versions.length} older={older} newer={newer} />
@@ -33,7 +34,7 @@ function DocumentRow({ item, handlers }: { item: OverviewItem; handlers: Version
   );
 }
 
-export function DocumentTable({ items, handlers }: { items: OverviewItem[]; handlers: VersionHandlers }) {
+export function DocumentTable({ items, handlers, focusVersionId }: { items: OverviewItem[]; handlers: VersionHandlers; focusVersionId?: number }) {
   const c = t.overview.columns;
   return (
     <table className="doc-table">
@@ -49,7 +50,7 @@ export function DocumentTable({ items, handlers }: { items: OverviewItem[]; hand
       </thead>
       <tbody>
         {items.map((item) => (
-          <DocumentRow key={item.documentClass.id} item={item} handlers={handlers} />
+          <DocumentRow key={item.documentClass.id} item={item} handlers={handlers} focusVersionId={focusVersionId} />
         ))}
       </tbody>
     </table>

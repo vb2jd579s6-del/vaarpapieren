@@ -79,6 +79,15 @@ describe("updateDocument", () => {
     expect(removeDocumentFile).not.toHaveBeenCalled();
   });
 
+  it("lets reminders start over when the expiry date changes", async () => {
+    const { cls, version } = await setup();
+    await db.execute("INSERT INTO notification_log (version_id, threshold_days) VALUES ($1, 90)", [version.id]);
+    await updateDocument(db, cls, version, editFormFrom(cls, version), valid, { kind: "keep" });
+    expect(await db.select<unknown[]>("SELECT * FROM notification_log")).toHaveLength(1);
+    await updateDocument(db, cls, version, editFormFrom(cls, version), { ...valid, expiryDate: "2031-11-01" }, { kind: "keep" });
+    expect(await db.select<unknown[]>("SELECT * FROM notification_log")).toEqual([]);
+  });
+
   it("removes the old file only after replacing it", async () => {
     const { cls, version } = await setup();
     vi.mocked(importDocumentFile).mockResolvedValueOnce({ file_path: "files/2.pdf", original_filename: "new.pdf" });
