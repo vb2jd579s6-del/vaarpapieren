@@ -79,6 +79,7 @@ pub fn run() {
         ))
         .invoke_handler(tauri::generate_handler![
             files::import_document_file,
+            files::open_document_file,
             files::remove_document_file
         ])
         .setup(|app| {

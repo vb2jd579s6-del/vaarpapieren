@@ -5,6 +5,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
 use tauri::{AppHandle, Manager};
+use tauri_plugin_opener::OpenerExt;
 
 const FILES_DIR: &str = "files";
 const ALLOWED_EXTENSIONS: [&str; 4] = ["pdf", "jpg", "jpeg", "png"];
@@ -66,6 +67,21 @@ pub fn import_document_file(app: AppHandle, source: String) -> Result<ImportedFi
     std::fs::copy(&source, dir.join(&name)).map_err(|e| e.to_string())?;
 
     Ok(ImportedFile { file_path: format!("{FILES_DIR}/{name}"), original_filename })
+}
+
+/// Error text the frontend recognises to show "file not found" instead of a raw error.
+const FILE_NOT_FOUND: &str = "file-not-found";
+
+/// Opens a stored document in the system's default viewer.
+#[tauri::command]
+pub fn open_document_file(app: AppHandle, file_path: String) -> Result<(), String> {
+    let path = resolve_stored(&app, &file_path)?;
+    if !path.is_file() {
+        return Err(FILE_NOT_FOUND.into());
+    }
+    app.opener()
+        .open_path(path.to_string_lossy(), None::<&str>)
+        .map_err(|e| e.to_string())
 }
 
 /// Removes a copied file. Only called after the user confirmed a delete, or to undo a copy

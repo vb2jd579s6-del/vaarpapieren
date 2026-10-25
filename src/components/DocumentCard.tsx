@@ -2,39 +2,50 @@ import { t } from "../i18n";
 import { formatDate } from "../lib/domain/dates";
 import type { OverviewItem } from "../lib/domain/overview";
 import { expiryText } from "../lib/expiryText";
+import { DocumentActions, type VersionHandlers } from "./DocumentActions";
 import { StatusBadge } from "./StatusBadge";
+import { useVersionSelection, VersionNavigator } from "./VersionNavigator";
 
-export function DocumentCard({ item }: { item: OverviewItem }) {
-  const { documentClass, current, versions, daysLeft, status } = item;
+export function DocumentCard({ item, handlers }: { item: OverviewItem; handlers: VersionHandlers }) {
+  const { documentClass, versions, status } = item;
+  const { version, index, isCurrent, older, newer } = useVersionSelection(item);
+  const shownStatus = isCurrent ? status : "superseded";
+
   return (
-    <article className={`card status-${status}`}>
+    <article className={`card status-${shownStatus}`}>
       <header className="card-head">
         <div>
           <h3>{documentClass.name}</h3>
           <span className="muted small">{t.categories[documentClass.category]}</span>
         </div>
-        <StatusBadge status={status} />
+        {isCurrent ? <StatusBadge status={status} /> : <span className="badge badge-superseded">{t.version.superseded}</span>}
       </header>
-      <p className={`expiry-text expiry-${status}`}>{expiryText(daysLeft)}</p>
+      <p className={`expiry-text expiry-${shownStatus}`}>
+        {isCurrent ? expiryText(item.daysLeft) : t.version.replacedBy(formatDate(versions[index - 1].issue_date))}
+      </p>
       <dl className="facts">
         <dt>{t.overview.issued}</dt>
-        <dd>{formatDate(current.issue_date)}</dd>
+        <dd>{formatDate(version.issue_date)}</dd>
         <dt>{t.overview.expires}</dt>
-        <dd className={status === "expired" ? "struck" : undefined}>{formatDate(current.expiry_date) || "—"}</dd>
-        {current.issuing_authority && (
+        <dd className={isCurrent && status === "expired" ? "struck" : undefined}>{formatDate(version.expiry_date) || "—"}</dd>
+        {version.issuing_authority && (
           <>
             <dt>{t.overview.authority}</dt>
-            <dd>{current.issuing_authority}</dd>
+            <dd>{version.issuing_authority}</dd>
           </>
         )}
-        {current.document_number && (
+        {version.document_number && (
           <>
             <dt>{t.overview.number}</dt>
-            <dd>{current.document_number}</dd>
+            <dd>{version.document_number}</dd>
           </>
         )}
       </dl>
-      {versions.length > 1 && <p className="muted small">{t.overview.olderVersions(versions.length - 1)}</p>}
+      {version.notes && <p className="notes small">{version.notes}</p>}
+      <footer className="card-foot">
+        <VersionNavigator index={index} total={versions.length} older={older} newer={newer} />
+        <DocumentActions version={version} isCurrent={isCurrent} handlers={handlers} />
+      </footer>
     </article>
   );
 }

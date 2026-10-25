@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateDocumentForm, type DocumentForm } from "./documentForm";
+import { editFormFrom, validateDocumentForm, validateEditForm, type DocumentForm, type EditForm } from "./documentForm";
 
 const base: DocumentForm = {
   classChoice: "new",
@@ -41,5 +41,28 @@ describe("validateDocumentForm", () => {
       issueDate: "2024-02-01",
       expiryDate: null,
     });
+  });
+});
+
+describe("validateEditForm", () => {
+  const edit: EditForm = { ...base, className: "ECDIS", category: "STCW" };
+
+  it("allows keeping the own name but not taking another class's name", () => {
+    expect(validateEditForm(edit, ["Paspoort"]).valid).toEqual({ issueDate: "2024-02-01", expiryDate: "2029-02-01" });
+    expect(validateEditForm({ ...edit, className: "paspoort" }, ["Paspoort"]).errors).toEqual({ className: "classNameExists" });
+    expect(validateEditForm({ ...edit, className: "" }, []).errors).toEqual({ className: "classNameRequired" });
+  });
+  it("checks dates like the Add form", () => {
+    expect(validateEditForm({ ...edit, expiryDate: "01-01-2020" }, []).errors).toEqual({ expiryDate: "expiryBeforeIssue" });
+  });
+  it("round-trips a stored version", () => {
+    const cls = { id: 1, name: "ECDIS", category: "STCW" as const, created_at: "" };
+    const version = {
+      id: 1, class_id: 1, issuing_authority: null, document_number: "X1", issue_date: "2024-02-01", expiry_date: null,
+      file_path: null, original_filename: null, notes: null, created_at: "", updated_at: "",
+    };
+    const form = editFormFrom(cls, version);
+    expect(form).toMatchObject({ issueDate: "01-02-2024", noExpiry: true, expiryDate: "", documentNumber: "X1", issuingAuthority: "" });
+    expect(validateEditForm(form, []).valid).toEqual({ issueDate: "2024-02-01", expiryDate: null });
   });
 });

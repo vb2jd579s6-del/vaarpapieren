@@ -17,7 +17,11 @@ export async function createClass(db: Db, name: string, category: Category): Pro
   return result.lastInsertId;
 }
 
-/** Only for undoing a class created moments ago whose first version could not be saved. */
+export async function updateClass(db: Db, id: number, name: string, category: Category): Promise<void> {
+  await db.execute("UPDATE document_class SET name = $1, category = $2 WHERE id = $3", [name.trim(), category, id]);
+}
+
+/** Only deletes a class without versions: after undoing a failed save, or when the user removed its last version. */
 export async function deleteEmptyClass(db: Db, id: number): Promise<void> {
   await db.execute("DELETE FROM document_class WHERE id = $1 AND NOT EXISTS (SELECT 1 FROM document_version WHERE class_id = $1)", [id]);
 }

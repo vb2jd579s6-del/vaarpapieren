@@ -59,6 +59,7 @@ body {
 button { font: inherit; color: inherit; cursor: pointer; }
 
 .btn {
+  color: var(--text);
   border: 1px solid var(--border);
   background: var(--surface);
   border-radius: 8px;

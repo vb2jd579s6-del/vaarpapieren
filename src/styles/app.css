@@ -145,3 +145,44 @@ textarea.input { resize: vertical; }
 .file-picker { display: flex; align-items: center; gap: 10px; }
 .icon-btn.small { width: 26px; height: 26px; font-size: 13px; }
 .actions { display: flex; gap: 8px; padding-top: 4px; }
+
+/* Versions and actions */
+.card-foot { margin-top: auto; padding-top: 8px; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.card.status-superseded { border-left-color: var(--border); border-left-style: dashed; }
+.card.status-superseded h3 { color: var(--text-muted); }
+.expiry-superseded { color: var(--text-muted); }
+.badge-superseded { color: var(--text-muted); background: var(--surface-2); border: 1px dashed var(--border); }
+.version-nav { display: inline-flex; align-items: center; gap: 2px; color: var(--text-muted); }
+.version-nav .icon-btn { font-size: 16px; }
+.icon-btn:disabled { opacity: 0.3; cursor: default; background: none; }
+.doc-actions { display: inline-flex; gap: 4px; margin-left: auto; }
+.doc-table .doc-actions { justify-content: flex-end; }
+.doc-table td:last-child, .doc-table td:nth-child(3), .doc-table td:nth-child(4) > span { white-space: nowrap; }
+.doc-table tr.status-superseded td { color: var(--text-muted); }
+.notes { margin: 0; color: var(--text-muted); white-space: pre-wrap; }
+.btn-small { padding: 3px 9px; font-size: 12px; }
+.btn-danger { background: var(--critical); border-color: var(--critical); color: var(--accent-contrast); }
+.btn-danger:hover { filter: brightness(1.08); background: var(--critical); }
+.btn-danger-quiet { color: var(--critical); }
+.notice-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pending-change { color: var(--warning); font-weight: 600; }
+
+/* Dialogs */
+.modal {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 22px 24px 18px;
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+.modal-wide { width: min(720px, calc(100vw - 32px)); }
+.modal::backdrop { background: rgba(4, 20, 22, 0.55); }
+.modal h2 { margin: 0 0 14px; font-size: 18px; }
+.modal-body { display: flex; flex-direction: column; gap: 12px; }
+.modal-body p { margin: 0; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.fieldset { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px 14px; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.fieldset legend { font-weight: 600; padding: 0 6px; }

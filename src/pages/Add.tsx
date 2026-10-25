@@ -1,4 +1,5 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { ERROR_FIELD, errorText, Field, NotesInput, VersionInputs } from "../components/FormFields";
 import { t } from "../i18n";
 import { listClasses } from "../lib/db/classes";
 import { getDb } from "../lib/db/connection";
@@ -19,28 +20,6 @@ const EMPTY_FORM: DocumentForm = {
   expiryDate: "",
   notes: "",
 };
-
-/** Which error a form value's change clears. */
-const ERROR_FIELD: Partial<Record<keyof DocumentForm, keyof FormErrors>> = {
-  newClassName: "className",
-  newClassCategory: "category",
-  issueDate: "issueDate",
-  expiryDate: "expiryDate",
-  noExpiry: "expiryDate",
-};
-
-function Field({ label, error, hint, optional, children }: { label: string; error?: string; hint?: string; optional?: boolean; children: ReactNode }) {
-  return (
-    <label className={`field${error ? " has-error" : ""}`}>
-      <span className="field-label">
-        {label}
-        {optional && <span className="muted"> ({t.add.optional})</span>}
-      </span>
-      {children}
-      {error ? <span className="field-error">{error}</span> : hint && <span className="field-hint">{hint}</span>}
-    </label>
-  );
-}
 
 export function Add({ onSaved }: { onSaved: () => void }) {
   const [classes, setClasses] = useState<DocumentClass[]>([]);
@@ -63,12 +42,13 @@ export function Add({ onSaved }: { onSaved: () => void }) {
       .catch((err) => setSaveError(String(err)));
   }, []);
 
-  const set = <K extends keyof DocumentForm>(key: K, value: DocumentForm[K]) => {
-    setForm((f) => ({ ...f, [key]: value }));
-    const field = ERROR_FIELD[key];
-    if (field) setErrors(({ [field]: _, ...rest }) => rest);
+  const patch = (changes: Partial<DocumentForm>) => {
+    setForm((f) => ({ ...f, ...changes }));
+    const cleared = Object.keys(changes).map((k) => ERROR_FIELD[k]);
+    setErrors((errs) => Object.fromEntries(Object.entries(errs).filter(([k]) => !cleared.includes(k as keyof FormErrors))));
   };
-  const err = (key: keyof FormErrors) => (errors[key] ? t.add.errors[errors[key]!] : undefined);
+  const set = <K extends keyof DocumentForm>(key: K, value: DocumentForm[K]) => patch({ [key]: value } as Partial<DocumentForm>);
+  const err = (key: keyof FormErrors) => errorText(errors, key);
   const chosenClass = form.classChoice === "new" ? undefined : classes.find((c) => c.id === form.classChoice);
 
   const chooseFile = async () => {
@@ -160,45 +140,7 @@ export function Add({ onSaved }: { onSaved: () => void }) {
         </div>
       )}
 
-      <div className="row">
-        <Field label={t.add.issuingAuthority} optional>
-          <input
-            className="input"
-            placeholder={t.add.issuingAuthorityPlaceholder}
-            value={form.issuingAuthority}
-            onChange={(e) => set("issuingAuthority", e.target.value)}
-          />
-        </Field>
-        <Field label={t.add.documentNumber} optional>
-          <input className="input" value={form.documentNumber} onChange={(e) => set("documentNumber", e.target.value)} />
-        </Field>
-      </div>
-
-      <div className="row">
-        <Field label={t.add.issueDate} error={err("issueDate")}>
-          <input
-            className="input"
-            inputMode="numeric"
-            placeholder={t.add.datePlaceholder}
-            value={form.issueDate}
-            onChange={(e) => set("issueDate", e.target.value)}
-          />
-        </Field>
-        <Field label={t.add.expiryDate} error={err("expiryDate")}>
-          <input
-            className="input"
-            inputMode="numeric"
-            placeholder={t.add.datePlaceholder}
-            value={form.noExpiry ? "" : form.expiryDate}
-            disabled={form.noExpiry}
-            onChange={(e) => set("expiryDate", e.target.value)}
-          />
-          <span className="checkbox">
-            <input type="checkbox" checked={form.noExpiry} onChange={(e) => set("noExpiry", e.target.checked)} />
-            {t.add.noExpiry}
-          </span>
-        </Field>
-      </div>
+      <VersionInputs value={form} errors={errors} onChange={patch} />
 
       <Field label={t.add.file} hint={t.add.fileHint} optional>
         <div className="file-picker">
@@ -214,9 +156,7 @@ export function Add({ onSaved }: { onSaved: () => void }) {
         </div>
       </Field>
 
-      <Field label={t.add.notes} optional>
-        <textarea className="input" rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} />
-      </Field>
+      <NotesInput value={form.notes} onChange={(v) => set("notes", v)} />
 
       <div className="actions">
         <button type="submit" className="btn btn-primary" disabled={saving}>

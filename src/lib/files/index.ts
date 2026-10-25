@@ -27,3 +27,11 @@ export function removeDocumentFile(filePath: string): Promise<void> {
 export function fileName(path: string): string {
   return path.split(/[\\/]/).pop() ?? path;
 }
+
+/** Matches FILE_NOT_FOUND in src-tauri/src/files.rs. */
+export const FILE_NOT_FOUND = "file-not-found";
+
+/** Opens the stored copy in the system's default viewer. */
+export function openDocumentFile(filePath: string): Promise<void> {
+  return invoke("open_document_file", { filePath });
+}
