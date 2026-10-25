@@ -4,6 +4,7 @@ import { DEFAULT_THRESHOLDS, normalizeThresholds } from "../domain/thresholds";
 
 export const SETTING_KEYS = {
   overviewView: "overview_view",
+  language: "language",
   thresholds: "notification_thresholds",
   /** Set once the first-start notice about notifications was dismissed. */
   notificationsIntroDone: "notifications_intro_done",

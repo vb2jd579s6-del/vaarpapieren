@@ -1,4 +1,4 @@
-/** All UI text (Dutch). To add a language: copy this file, translate, and register it in index.ts. */
+/** All UI text (Dutch). To add a language: copy en.ts, translate, and register it in index.ts. */
 export const nl = {
   app: { name: "Vaarpapieren", splashHint: "Klik om verder te gaan" },
   tabs: { overview: "Overzicht", add: "Toevoegen", settings: "Instellingen" },
@@ -78,6 +78,8 @@ export const nl = {
   },
   settings: {
     title: "Instellingen",
+    languageSection: "Taal",
+    languageHint: "De taal van de app, het menu in de menubalk/het systeemvak en de meldingen.",
     notificationsSection: "Meldingen",
     notificationsHint: "Je krijgt een melding zodra een document binnen een van deze termijnen verloopt. Elke termijn wordt per document maar één keer gemeld, en alleen voor de actuele versie.",
     thresholdChip: (days: number) => (days === 1 ? "1 dag" : `${days} dagen`),
@@ -184,6 +186,7 @@ export const nl = {
     fileNotRemoved: "De versie is verwijderd, maar het bestand kon niet worden verwijderd.",
   },
   common: { error: (detail: string) => `Fout: ${detail}` },
-} as const;
+};
 
+/** Every language provides exactly these texts; TypeScript flags a missing or extra one. */
 export type Messages = typeof nl;

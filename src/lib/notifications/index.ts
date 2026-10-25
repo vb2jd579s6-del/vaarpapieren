@@ -15,6 +15,11 @@ import { buildOverview } from "../domain/overview";
 const EVENT_CHECK_NOW = "check-now";
 const EVENT_OPEN_DOCUMENT = "open-document";
 
+/** Sets the tray menu texts in the active language (see set_tray_texts in lib.rs). */
+export function applyTrayTexts(): void {
+  invoke("set_tray_texts", { texts: t.tray }).catch((err) => console.error("Could not set tray texts", err));
+}
+
 export async function ensurePermission(): Promise<boolean> {
   if (await isPermissionGranted()) return true;
   return (await requestPermission()) === "granted";
@@ -64,7 +69,7 @@ export async function sendTestNotification(): Promise<boolean> {
  */
 export function startNotificationService(onOpenDocument: (versionId: number) => void): () => void {
   const report = (err: unknown) => console.error("Expiry check failed", err);
-  void invoke("set_tray_texts", { texts: t.tray }).catch((err) => console.error("Could not set tray texts", err));
+  applyTrayTexts();
   void runExpiryCheck().catch(report);
   const stops = [
     listen(EVENT_CHECK_NOW, () => void runExpiryCheck().catch(report)),

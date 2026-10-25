@@ -1,7 +1,8 @@
 import { appDataDir } from "@tauri-apps/api/path";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { useEffect, useState, type FormEvent } from "react";
-import { t } from "../i18n";
+import { SegmentedControl } from "../components/SegmentedControl";
+import { LANGUAGE_NAMES, LANGUAGES, t, type Language } from "../i18n";
 import { getDb } from "../lib/db/connection";
 import { getThresholds, setThresholds } from "../lib/db/settings";
 import { DEFAULT_THRESHOLDS, normalizeThresholds } from "../lib/domain/thresholds";
@@ -14,7 +15,7 @@ interface Status {
   text: string;
 }
 
-export function Settings() {
+export function Settings({ language, onLanguageChange }: { language: Language; onLanguageChange: (lang: Language) => void }) {
   const [thresholds, setThresholdState] = useState<number[] | null>(null);
   const [newDays, setNewDays] = useState("");
   const [inputError, setInputError] = useState(false);
@@ -79,6 +80,17 @@ export function Settings() {
     <div className="form">
       <h2>{t.settings.title}</h2>
       {status && <div className={`notice${status.kind === "error" ? " notice-error" : ""}`}>{status.text}</div>}
+
+      <section className="fieldset">
+        <h3 className="section-title">{t.settings.languageSection}</h3>
+        <SegmentedControl
+          label={t.settings.languageSection}
+          value={language}
+          onChange={onLanguageChange}
+          segments={(Object.keys(LANGUAGES) as Language[]).map((id) => ({ id, label: LANGUAGE_NAMES[id] }))}
+        />
+        <p className="field-hint">{t.settings.languageHint}</p>
+      </section>
 
       <section className="fieldset">
         <h3 className="section-title">{t.settings.notificationsSection}</h3>
