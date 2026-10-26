@@ -246,6 +246,18 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
+/// Autostart registers the path of the app that switched it on. After an update, or when it was
+/// switched on from a development build, that path can be stale; the installed app (in
+/// /Applications) points it back at itself. Development builds leave it alone.
+fn refresh_autostart(app: &AppHandle) {
+    use tauri_plugin_autostart::ManagerExt;
+    let installed = std::env::current_exe().is_ok_and(|exe| exe.starts_with("/Applications"));
+    let autolaunch = app.autolaunch();
+    if installed && autolaunch.is_enabled().unwrap_or(false) {
+        let _ = autolaunch.enable();
+    }
+}
+
 fn start_check_timer(app: AppHandle) {
     std::thread::spawn(move || loop {
         std::thread::sleep(CHECK_INTERVAL);
@@ -299,6 +311,7 @@ pub fn run() {
         ])
         .setup(|app| {
             setup_tray(app.handle())?;
+            refresh_autostart(app.handle());
             #[cfg(target_os = "macos")]
             continuity::suppress_automatic_edit_items();
             set_app_menu(app.handle(), default_app_menu_texts())?;

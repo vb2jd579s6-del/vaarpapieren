@@ -102,6 +102,16 @@ De installatiebestanden komen in `src-tauri/target/release/bundle/`:
 
 Alleen de `.app` bouwen gaat sneller: `npm run tauri build -- --bundles app`.
 
+### Installeren en updaten op deze Mac
+
+```bash
+npm run install:mac
+```
+
+Dit commando bouwt de app en zet hem in `/Applications/Vaarpapieren.app`. Een eerdere versie wordt vervangen. Draait de app nog, dan sluit het commando hem eerst af en start het de nieuwe versie daarna. Bij een update hoef je alleen dit commando opnieuw te draaien. Je documenten en instellingen in `~/Library/Application Support/nl.tharsis.vaarpapieren/` blijven gewoon staan.
+
+Staat **Automatisch starten bij inloggen** aan, dan zet de geïnstalleerde app het opstartitem bij elke start op zichzelf. Ook als het eerder vanuit een dev-versie is aangezet.
+
 Een Windows-build maak je op een Windows-pc. Kruiselings bouwen vanaf macOS wordt niet ondersteund.
 
 **Niet ondertekend:** de builds zijn niet ondertekend.
