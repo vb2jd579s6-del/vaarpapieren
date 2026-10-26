@@ -367,3 +367,8 @@ button.preview-large:hover .preview-hint, button.preview-large:focus-visible .pr
 .filmstrip button { border: 2px solid transparent; background: none; padding: 0; border-radius: 12px; flex: none; }
 .filmstrip button[aria-selected="true"] { border-color: var(--accent); }
 .filmstrip .preview-thumb { width: 52px; height: 68px; }
+
+/* Suggestions read from a scan */
+.scan-notice { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.scan-found { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.scan-facts { font-size: 13px; }

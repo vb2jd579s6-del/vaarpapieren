@@ -8,7 +8,10 @@ import { listVersions } from "../lib/db/versions";
 import { validateDocumentForm, type DocumentForm, type FormErrors } from "../lib/domain/documentForm";
 import { CATEGORIES, type Category, type DocumentClass } from "../lib/domain/types";
 import { saveNewDocument } from "../lib/documents";
+import { formatDate } from "../lib/domain/dates";
+import type { ScanInfo } from "../lib/domain/scanInfo";
 import { fileName, pickDocumentFiles } from "../lib/files";
+import { canReadScans, readScanInfo } from "../lib/scan";
 
 const EMPTY_FORM: DocumentForm = {
   classChoice: "new",
@@ -27,6 +30,48 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
   const [versionCounts, setVersionCounts] = useState<Map<number, number>>(new Map());
   const [form, setForm] = useState<DocumentForm>(EMPTY_FORM);
   const [files, setFiles] = useState<string[]>(initialFile ? [initialFile] : []);
+  /** What the last added file suggests, or that it is being read. */
+  const [scan, setScan] = useState<{ name: string; info: ScanInfo | null } | null>(null);
+
+  /** Reads newly added files one by one until one yields something (macOS only). */
+  const readNewFiles = async (paths: string[]) => {
+    if (!canReadScans) return;
+    for (const path of paths) {
+      setScan({ name: fileName(path), info: null });
+      try {
+        const info = await readScanInfo(path);
+        if (Object.keys(info).length > 0) {
+          setScan({ name: fileName(path), info });
+          return;
+        }
+      } catch (err) {
+        console.error("Could not read the file", err);
+      }
+      setScan({ name: fileName(path), info: {} });
+    }
+  };
+
+  const addFiles = (paths: string[]) => {
+    const fresh = paths.filter((p) => !files.includes(p));
+    if (fresh.length === 0) return;
+    setFiles((list) => [...list, ...fresh.filter((p) => !list.includes(p))]);
+    void readNewFiles(fresh);
+  };
+
+  const applyScan = (info: ScanInfo) => {
+    patch({
+      ...(info.issueDate ? { issueDate: formatDate(info.issueDate) } : {}),
+      ...(info.expiryDate ? { expiryDate: formatDate(info.expiryDate), noExpiry: false } : {}),
+      ...(info.documentNumber ? { documentNumber: info.documentNumber } : {}),
+    });
+    setScan(null);
+  };
+
+  // A scan handed over by the menu bar arrives as the initial file.
+  useEffect(() => {
+    if (initialFile) void readNewFiles([initialFile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -54,8 +99,7 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
 
   const chooseFile = async () => {
     try {
-      const picked = await pickDocumentFiles(t.add.fileFilter);
-      if (picked.length) setFiles((list) => [...list, ...picked.filter((p) => !list.includes(p))]);
+      addFiles(await pickDocumentFiles(t.add.fileFilter));
     } catch (e) {
       setSaveError(String(e));
     }
@@ -143,10 +187,58 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
 
       <VersionInputs value={form} errors={errors} onChange={patch} />
 
+      {scan && (
+        <div className={`notice scan-notice${scan.info && Object.keys(scan.info).length === 0 ? "" : " scan-found"}`} role="status">
+          {scan.info === null ? (
+            <span className="muted">{t.add.scanReading}</span>
+          ) : Object.keys(scan.info).length === 0 ? (
+            <div className="notice-row">
+              <span className="muted">{t.add.scanNothing(scan.name)}</span>
+              <button type="button" className="icon-btn small" aria-label={t.add.scanDismiss} onClick={() => setScan(null)}>
+                ✕
+              </button>
+            </div>
+          ) : (
+            <>
+              <strong>{t.add.scanFound(scan.name)}</strong>
+              <dl className="facts scan-facts">
+                {scan.info.issueDate && (
+                  <>
+                    <dt>{t.add.issueDate}</dt>
+                    <dd>{formatDate(scan.info.issueDate)}</dd>
+                  </>
+                )}
+                {scan.info.expiryDate && (
+                  <>
+                    <dt>{t.add.expiryDate}</dt>
+                    <dd>{formatDate(scan.info.expiryDate)}</dd>
+                  </>
+                )}
+                {scan.info.documentNumber && (
+                  <>
+                    <dt>{t.add.documentNumber}</dt>
+                    <dd>{scan.info.documentNumber}</dd>
+                  </>
+                )}
+              </dl>
+              <p className="field-hint">{t.add.scanCheck}</p>
+              <div className="actions">
+                <button type="button" className="btn btn-small btn-primary" onClick={() => applyScan(scan.info!)}>
+                  {t.add.scanApply}
+                </button>
+                <button type="button" className="btn btn-small" onClick={() => setScan(null)}>
+                  {t.add.scanDismiss}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       <FileList
         items={files.map((path) => ({ key: path, name: fileName(path) }))}
         onAdd={chooseFile}
-        onAddPath={(path) => setFiles((list) => (list.includes(path) ? list : [...list, path]))}
+        onAddPath={(path) => addFiles([path])}
         onRemove={(path) => setFiles((list) => list.filter((p) => p !== path))}
         onError={(e) => setSaveError(String(e))}
       />
@@ -164,6 +256,7 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
           onClick={() => {
             setForm(EMPTY_FORM);
             setFiles([]);
+            setScan(null);
             setErrors({});
             setSaveError(null);
           }}

@@ -1,5 +1,7 @@
 #[cfg(target_os = "macos")]
 mod continuity;
+#[cfg(target_os = "macos")]
+mod ocr;
 mod files;
 
 use std::time::Duration;
@@ -350,6 +352,8 @@ pub fn run() {
             files::remove_document_file,
             #[cfg(target_os = "macos")]
             continuity::show_iphone_import_menu,
+            #[cfg(target_os = "macos")]
+            ocr::recognize_document_text,
             set_menu_texts
         ])
         .setup(|app| {
