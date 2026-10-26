@@ -3,6 +3,7 @@ mod continuity;
 #[cfg(target_os = "macos")]
 mod ocr;
 mod files;
+mod transfer;
 
 use std::time::Duration;
 
@@ -354,7 +355,12 @@ pub fn run() {
             continuity::show_iphone_import_menu,
             #[cfg(target_os = "macos")]
             ocr::recognize_document_text,
-            set_menu_texts
+            set_menu_texts,
+            transfer::export_data,
+            transfer::backup_data,
+            transfer::read_import,
+            transfer::finish_import,
+            transfer::save_file
         ])
         .setup(|app| {
             setup_tray(app.handle())?;

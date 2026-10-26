@@ -7,7 +7,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_opener::OpenerExt;
 
-const FILES_DIR: &str = "files";
+pub(crate) const FILES_DIR: &str = "files";
 const ALLOWED_EXTENSIONS: [&str; 4] = ["pdf", "jpg", "jpeg", "png"];
 
 #[derive(Serialize)]
@@ -22,7 +22,7 @@ fn data_dir(app: &AppHandle) -> Result<PathBuf, String> {
 }
 
 /// A stored path must point inside the files directory: no absolute paths, no `..`.
-fn is_stored_path(relative: &str) -> bool {
+pub(crate) fn is_stored_path(relative: &str) -> bool {
     let rel = Path::new(relative);
     rel.starts_with(FILES_DIR)
         && rel.components().count() > 1

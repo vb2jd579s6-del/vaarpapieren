@@ -372,3 +372,4 @@ button.preview-large:hover .preview-hint, button.preview-large:focus-visible .pr
 .scan-notice { margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .scan-found { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .scan-facts { font-size: 13px; }
+.path-notice { word-break: break-word; }

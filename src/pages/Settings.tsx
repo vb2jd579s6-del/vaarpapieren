@@ -1,9 +1,14 @@
 import { appDataDir } from "@tauri-apps/api/path";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { useEffect, useState, type FormEvent } from "react";
+import { ConfirmDialog } from "../components/ConfirmDialog";
+import { Modal } from "../components/Modal";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { LANGUAGE_NAMES, LANGUAGES, t, type Language } from "../i18n";
 import { TABS_POSITIONS, type TabsPosition } from "../lib/layout";
+import { formatDate } from "../lib/domain/dates";
+import { InvalidExportError, type ExportManifest } from "../lib/transfer";
+import { applyImport, exportToFile, readImportFile } from "../lib/transferApp";
 import { appVersion, checkForUpdate, installUpdate } from "../lib/updates";
 import type { Update } from "@tauri-apps/plugin-updater";
 import { getDb } from "../lib/db/connection";
@@ -38,6 +43,10 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
   const [updateStatus, setUpdateStatus] = useState<Status | null>(null);
   const [updating, setUpdating] = useState<"checking" | "installing" | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
+  const [transferStatus, setTransferStatus] = useState<Status | null>(null);
+  const [transferring, setTransferring] = useState<"export" | "import" | null>(null);
+  const [pendingImport, setPendingImport] = useState<ExportManifest | null>(null);
+  const [imported, setImported] = useState<{ documents: number; backup: string } | null>(null);
 
   const fail = (err: unknown) => setStatus({ kind: "error", text: `${t.settings.error} ${t.common.error(String(err))}` });
 
@@ -105,6 +114,53 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
     } catch (err) {
       setUpdateStatus({ kind: "error", text: `${t.settings.installError} ${t.common.error(String(err))}` });
       setUpdating(null);
+    }
+  };
+
+  const transferError = (err: unknown) => {
+    const text =
+      err instanceof InvalidExportError
+        ? /newer/.test(err.message)
+          ? t.settings.newerExport
+          : t.settings.invalidExport
+        : `${t.settings.error} ${t.common.error(String(err))}`;
+    setTransferStatus({ kind: "error", text });
+  };
+
+  const doExport = async () => {
+    setTransferring("export");
+    setTransferStatus(null);
+    try {
+      const dest = await exportToFile(t.settings.exportFilter);
+      if (dest) setTransferStatus({ kind: "info", text: t.settings.exportDone(dest) });
+    } catch (err) {
+      transferError(err);
+    } finally {
+      setTransferring(null);
+    }
+  };
+
+  const chooseImport = async () => {
+    setTransferStatus(null);
+    try {
+      const manifest = await readImportFile(t.settings.exportFilter);
+      if (manifest) setPendingImport(manifest);
+    } catch (err) {
+      transferError(err);
+    }
+  };
+
+  const doImport = async () => {
+    if (!pendingImport) return;
+    setTransferring("import");
+    try {
+      const backup = await applyImport(pendingImport);
+      setImported({ documents: pendingImport.classes.length, backup });
+    } catch (err) {
+      transferError(err);
+    } finally {
+      setPendingImport(null);
+      setTransferring(null);
     }
   };
 
@@ -269,6 +325,49 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
         {update?.body && <p className="field-hint notes">{update.body}</p>}
         <p className="field-hint">{t.settings.updatesHint}</p>
       </section>
+
+      <section className="fieldset">
+        <h3 className="section-title">{t.settings.transferSection}</h3>
+        <p className="field-hint">{t.settings.transferHint}</p>
+        <div className="actions">
+          <button className="btn" onClick={doExport} disabled={transferring !== null}>
+            {transferring === "export" ? t.settings.exporting : t.settings.exportData}
+          </button>
+          <button className="btn" onClick={chooseImport} disabled={transferring !== null}>
+            {transferring === "import" ? t.settings.importing : t.settings.importData}
+          </button>
+        </div>
+        {transferStatus && (
+          <div className={`notice path-notice${transferStatus.kind === "error" ? " notice-error" : ""}`}>{transferStatus.text}</div>
+        )}
+      </section>
+
+      {pendingImport && (
+        <ConfirmDialog
+          title={t.settings.importTitle}
+          confirmLabel={t.settings.importReplace}
+          danger
+          busy={transferring === "import"}
+          onConfirm={doImport}
+          onCancel={() => setPendingImport(null)}
+        >
+          <p>{t.settings.importConfirm(pendingImport.classes.length, formatDate(pendingImport.exportedAt.slice(0, 10)))}</p>
+        </ConfirmDialog>
+      )}
+
+      {imported && (
+        <Modal
+          title={t.settings.importDoneTitle}
+          onClose={() => window.location.reload()}
+          footer={
+            <button className="btn btn-primary" onClick={() => window.location.reload()} autoFocus>
+              {t.settings.importReload}
+            </button>
+          }
+        >
+          <p className="path-notice">{t.settings.importDone(imported.documents, imported.backup)}</p>
+        </Modal>
+      )}
 
       {dataDir && (
         <section className="fieldset">
