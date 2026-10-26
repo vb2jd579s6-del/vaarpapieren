@@ -164,7 +164,7 @@ Je kunt ook de vervaldatum van het testdocument aanpassen.
 
 ## Importeren vanaf iPhone (macOS)
 
-Onder **Toevoegen**, en bij **Bewerken** om een bestand te vervangen, staat de knop **Importeer vanaf iPhone…**. Dat is dezelfde functie als in het contextmenu van het bureaublad (Continuity Camera). Kies je iPhone en daarna **Scan documenten** of **Maak foto**. Het resultaat komt binnen als gekozen bestand: een scan als PDF, een foto als JPG of PNG. Daarna sla je op zoals gewoonlijk.
+Onder **Toevoegen**, en bij **Bewerken** om een bestand te vervangen, staat de knop **Importeer vanaf iPhone…**. Hetzelfde staat bovenin onder **Wijzig → Importeer vanaf iPhone**; een scan via dat menu opent de pagina Toevoegen. Dat is dezelfde functie als in het contextmenu van het bureaublad (Continuity Camera). Kies je iPhone en daarna **Scan documenten** of **Maak foto**. Het resultaat komt binnen als gekozen bestand: een scan als PDF, een foto als JPG of PNG. Daarna sla je op zoals gewoonlijk.
 
 Voorwaarden van Apple:
 - iPhone en Mac zijn ingelogd met dezelfde Apple Account.

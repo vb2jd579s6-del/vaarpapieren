@@ -46,8 +46,23 @@ export function showIphoneImportMenu(button: HTMLElement, title: string): Promis
   return invoke("show_iphone_import_menu", { x: rect.left, y: rect.bottom + 4, title });
 }
 
-/** Calls `onFile` with the path of each scan or photo received from the iPhone; returns a stop function. */
+/** Who gets a scan: the most recently opened Add page or Edit dialog, else the app-wide fallback. */
+const importHandlers: ((path: string) => void)[] = [];
+
+/** Makes `onFile` receive the scans and photos from the iPhone while it is registered; returns the unregister function. */
 export function onIphoneImport(onFile: (path: string) => void): () => void {
-  const stop = listen<string>("continuity-import", (e) => onFile(e.payload));
+  importHandlers.push(onFile);
+  return () => {
+    const i = importHandlers.lastIndexOf(onFile);
+    if (i !== -1) importHandlers.splice(i, 1);
+  };
+}
+
+/**
+ * Listens for scans from the iPhone (event from src-tauri/src/continuity.rs). A scan started from
+ * the menu bar can arrive while no Add page is open; `fallback` handles that. Returns a stop function.
+ */
+export function listenForIphoneImports(fallback: (path: string) => void): () => void {
+  const stop = listen<string>("continuity-import", (e) => (importHandlers[importHandlers.length - 1] ?? fallback)(e.payload));
   return () => void stop.then((unlisten) => unlisten());
 }

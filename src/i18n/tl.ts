@@ -135,6 +135,7 @@ export const tl: Messages = {
     copy: "Kopyahin",
     paste: "I-paste",
     selectAll: "Piliin lahat",
+    importFromIphone: "Mag-import mula sa iPhone",
     window: "Window",
     minimize: "I-minimize",
     zoom: "I-zoom",

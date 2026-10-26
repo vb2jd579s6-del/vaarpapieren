@@ -22,11 +22,11 @@ const EMPTY_FORM: DocumentForm = {
   notes: "",
 };
 
-export function Add({ onSaved }: { onSaved: () => void }) {
+export function Add({ onSaved, initialFile = null }: { onSaved: () => void; initialFile?: string | null }) {
   const [classes, setClasses] = useState<DocumentClass[]>([]);
   const [versionCounts, setVersionCounts] = useState<Map<number, number>>(new Map());
   const [form, setForm] = useState<DocumentForm>(EMPTY_FORM);
-  const [file, setFile] = useState<string | null>(null);
+  const [file, setFile] = useState<string | null>(initialFile);
   const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);

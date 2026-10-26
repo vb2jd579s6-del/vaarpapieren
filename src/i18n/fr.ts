@@ -135,6 +135,7 @@ export const fr: Messages = {
     copy: "Copier",
     paste: "Coller",
     selectAll: "Tout sélectionner",
+    importFromIphone: "Importer depuis l'iPhone",
     window: "Fenêtre",
     minimize: "Placer dans le Dock",
     zoom: "Réduire/agrandir",

@@ -94,6 +94,7 @@ struct AppMenuTexts {
     copy: String,
     paste: String,
     select_all: String,
+    import_from_iphone: String,
     window: String,
     minimize: String,
     zoom: String,
@@ -116,6 +117,7 @@ fn default_app_menu_texts() -> AppMenuTexts {
         copy: "Kopieer".into(),
         paste: "Plak".into(),
         select_all: "Selecteer alles".into(),
+        import_from_iphone: "Importeer vanaf iPhone".into(),
         window: "Venster".into(),
         minimize: "Minimaliseer".into(),
         zoom: "Zoom".into(),
@@ -124,7 +126,7 @@ fn default_app_menu_texts() -> AppMenuTexts {
 }
 
 /// Only what the app uses: the app menu (with Settings, ⌘,), Edit (so ⌘C/⌘V work in text
-/// fields) and Window. Windows has no app menu, so this is macOS only.
+/// fields, plus Import from iPhone) and Window. Windows has no app menu, so this is macOS only.
 #[cfg(target_os = "macos")]
 fn set_app_menu(app: &AppHandle, t: AppMenuTexts) -> tauri::Result<()> {
     use tauri::menu::{AboutMetadata, PredefinedMenuItem, Submenu};
@@ -178,6 +180,10 @@ fn set_app_menu(app: &AppHandle, t: AppMenuTexts) -> tauri::Result<()> {
         ],
     )?;
     app.set_menu(Menu::with_items(app, &[&app_menu, &edit, &window])?)?;
+    // Continuity Camera needs a native item identifier that Tauri menus cannot set; added after
+    // the menu is in place (queued behind it on the main thread).
+    let title = t.import_from_iphone;
+    app.run_on_main_thread(move || crate::continuity::add_to_edit_menu(&title))?;
     Ok(())
 }
 
@@ -293,6 +299,8 @@ pub fn run() {
         ])
         .setup(|app| {
             setup_tray(app.handle())?;
+            #[cfg(target_os = "macos")]
+            continuity::suppress_automatic_edit_items();
             set_app_menu(app.handle(), default_app_menu_texts())?;
             #[cfg(target_os = "macos")]
             if let Some(window) = app.get_webview_window(MAIN_WINDOW) {

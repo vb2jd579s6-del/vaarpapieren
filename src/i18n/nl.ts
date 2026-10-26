@@ -134,6 +134,7 @@ export const nl = {
     copy: "Kopieer",
     paste: "Plak",
     selectAll: "Selecteer alles",
+    importFromIphone: "Importeer vanaf iPhone",
     window: "Venster",
     minimize: "Minimaliseer",
     zoom: "Zoom",

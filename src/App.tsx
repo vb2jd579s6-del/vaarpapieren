@@ -4,6 +4,7 @@ import { Tabs, type TabItem } from "./components/Tabs";
 import { language, t, type Language } from "./i18n";
 import { changeLanguage } from "./lib/language";
 import { saveTabsPosition, type TabsPosition } from "./lib/layout";
+import { listenForIphoneImports } from "./lib/files";
 import { startNotificationService } from "./lib/notifications";
 import { Add } from "./pages/Add";
 import { Overview } from "./pages/Overview";
@@ -30,9 +31,22 @@ export default function App({ initialTabsPosition }: { initialTabsPosition: Tabs
   /** Mirrors the active language so a switch re-renders everything with the new texts. */
   const [lang, setLang] = useState<Language>(language);
   const [tabsPosition, setTabsPosition] = useState(initialTabsPosition);
+  /** A scan that arrived while no Add page was open; the nonce remounts Add so it takes it over. */
+  const [pendingScan, setPendingScan] = useState<{ path: string; nonce: number } | null>(null);
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
   const [focus, setFocus] = useState<{ versionId: number; nonce: number } | null>(null);
   const endSplash = useCallback(() => setShowSplash(false), []);
+
+  // A scan from the menu bar's Import from iPhone, with no Add page open: open one with it.
+  useEffect(
+    () =>
+      listenForIphoneImports((path) => {
+        setShowSplash(false);
+        setPendingScan({ path, nonce: Date.now() });
+        setPage("add");
+      }),
+    [],
+  );
 
   // App menu → Settings (⌘,); the event name matches EVENT_OPEN_SETTINGS in lib.rs.
   useEffect(() => {
@@ -86,7 +100,7 @@ export default function App({ initialTabsPosition }: { initialTabsPosition: Tabs
       </header>
       <main className="content">
         {page === "overview" && <Overview key={focus?.nonce} focusVersionId={focus?.versionId} onAdd={() => setPage("add")} />}
-        {page === "add" && <Add onSaved={() => setPage("overview")} />}
+        {page === "add" && <Add key={pendingScan?.nonce} initialFile={pendingScan?.path ?? null} onSaved={() => setPage("overview")} />}
         {page === "settings" && (
           <Settings language={lang} onLanguageChange={switchLanguage} tabsPosition={tabsPosition} onTabsPositionChange={moveTabs} />
         )}
