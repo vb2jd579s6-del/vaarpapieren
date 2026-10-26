@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CertificateListDialog } from "../components/CertificateListDialog";
 import { DeleteDialog } from "../components/DeleteDialog";
 import type { VersionHandlers } from "../components/DocumentActions";
 import { DocumentCard } from "../components/DocumentCard";
@@ -48,6 +49,7 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
   /** The enlarged card, by class (so it follows reloads) and the version it showed. */
   const [expanded, setExpanded] = useState<{ classId: number; versionId: number } | null>(null);
   const expandedFrom = useRef<HTMLElement | null>(null);
+  const [listOpen, setListOpen] = useState(false);
 
   const reload = useCallback(async () => {
     const db = await getDb();
@@ -274,6 +276,13 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
           ))}
         </select>
         <span className="spacer" />
+        <button className="btn btn-icon-text" onClick={() => setListOpen(true)}>
+          <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+            <path d="M14 3v5h5M9 13h6M9 17h4" />
+          </svg>
+          {t.pdf.button}
+        </button>
         <SegmentedControl
           label={t.overview.viewLabel}
           value={view}
@@ -298,6 +307,16 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
       )}
       {expanded && expandedItem && (
         <ExpandedDocument item={expandedItem} versionId={expanded.versionId} handlers={handlers} onClose={closeExpanded} />
+      )}
+      {listOpen && (
+        <CertificateListDialog
+          items={items}
+          onClose={() => setListOpen(false)}
+          onSaved={(path) => {
+            setListOpen(false);
+            setMessage({ kind: "info", text: t.pdf.saved(path) });
+          }}
+        />
       )}
       {dialogs}
     </>

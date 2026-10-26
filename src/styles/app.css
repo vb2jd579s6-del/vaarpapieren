@@ -373,3 +373,4 @@ button.preview-large:hover .preview-hint, button.preview-large:focus-visible .pr
 .scan-found { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .scan-facts { font-size: 13px; }
 .path-notice { word-break: break-word; }
+.toolbar .btn-icon-text { display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-pill); }
