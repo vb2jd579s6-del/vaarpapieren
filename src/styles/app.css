@@ -405,3 +405,17 @@ button.preview-large:hover .preview-hint, button.preview-large:focus-visible .pr
 .check-missing .check-mark { background: var(--critical); }
 .check-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .calendar-btn { align-self: flex-start; }
+
+/* A half-filled Add form: the tab hops briefly every few seconds (quick up-and-down, then rest). */
+.tab-attention { animation: tab-hop 3.2s cubic-bezier(0.3, 0, 0.3, 1) infinite; position: relative; }
+.tab-attention::after {
+  content: ""; position: absolute; top: 6px; right: 8px; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--warning); box-shadow: 0 0 0 2px var(--surface-2);
+}
+@keyframes tab-hop {
+  0%, 16%, 100% { transform: translateY(0); }
+  4% { transform: translateY(-5px); }
+  8% { transform: translateY(0); }
+  11% { transform: translateY(-2.5px); }
+}
+@media (prefers-reduced-motion: reduce) { .tab-attention { animation: none; } }

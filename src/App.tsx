@@ -60,6 +60,7 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
   const [pendingScan, setPendingScan] = useState<{ path: string; nonce: number } | null>(null);
   /** A document type to add, chosen from a missing requirement; prefills the Add form. */
   const [pendingName, setPendingName] = useState<{ name: string; nonce: number } | null>(null);
+  const [addHasDraft, setAddHasDraft] = useState(false);
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
   const [focus, setFocus] = useState<{ versionId: number; nonce: number } | null>(null);
   const endSplash = useCallback(() => setShowSplash(false), []);
@@ -111,7 +112,7 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
 
   const tabs: TabItem<"overview" | "add" | "career">[] = [
     { id: "overview", label: t.tabs.overview },
-    { id: "add", label: t.tabs.add },
+    { id: "add", label: t.tabs.add, attention: addHasDraft },
     { id: "career", label: t.tabs.career },
   ];
 
@@ -137,6 +138,7 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
             pendingFile={pendingScan}
             pendingName={pendingName}
             onShow={() => setPage("add")}
+            onDraftChange={setAddHasDraft}
             onSaved={() => setPage("overview")}
           />
         </div>
