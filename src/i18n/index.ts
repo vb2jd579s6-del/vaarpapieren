@@ -17,7 +17,7 @@ export const LANGUAGE_NAMES: Record<Language, string> = {
   de: "Deutsch",
   es: "Español",
   fr: "Français",
-  tl: "Tagalog (Filipino)",
+  tl: "Tagalog",
 };
 
 export function isLanguage(value: unknown): value is Language {

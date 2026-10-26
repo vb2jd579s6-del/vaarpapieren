@@ -34,14 +34,9 @@ const EVENT_OPEN_DOCUMENT: &str = "open-document";
 /// The periodic check runs on a Rust thread, so it keeps its pace while the window is hidden.
 const CHECK_INTERVAL: Duration = Duration::from_secs(6 * 60 * 60);
 
-/// The tray menu items, kept so their texts can be set from the frontend (src/i18n).
-struct TrayItems {
-    open: MenuItem<Wry>,
-    check: MenuItem<Wry>,
-    quit: MenuItem<Wry>,
-    tray: tauri::tray::TrayIcon<Wry>,
-}
+const TRAY_ID: &str = "main";
 
+/// Tray menu texts, set from the frontend (src/i18n) so they follow the chosen language.
 #[derive(Deserialize)]
 struct TrayTexts {
     open: String,
@@ -50,13 +45,30 @@ struct TrayTexts {
     tooltip: String,
 }
 
+/// Placeholder texts until the frontend has loaded the saved language.
+fn default_tray_texts() -> TrayTexts {
+    TrayTexts {
+        open: "Openen".into(),
+        check: "Nu controleren".into(),
+        quit: "Afsluiten".into(),
+        tooltip: "Vaarpapieren".into(),
+    }
+}
+
+fn tray_menu(app: &AppHandle, texts: &TrayTexts) -> tauri::Result<Menu<Wry>> {
+    let open = MenuItem::with_id(app, "open", &texts.open, true, None::<&str>)?;
+    let check = MenuItem::with_id(app, "check", &texts.check, true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", &texts.quit, true, None::<&str>)?;
+    Menu::with_items(app, &[&open, &check, &quit])
+}
+
+/// Replaces the whole tray menu: renaming the existing items does not show on macOS.
 #[tauri::command]
 fn set_tray_texts(app: AppHandle, texts: TrayTexts) -> Result<(), String> {
-    let items = app.state::<TrayItems>();
-    items.open.set_text(texts.open).map_err(|e| e.to_string())?;
-    items.check.set_text(texts.check).map_err(|e| e.to_string())?;
-    items.quit.set_text(texts.quit).map_err(|e| e.to_string())?;
-    items.tray.set_tooltip(Some(texts.tooltip)).map_err(|e| e.to_string())?;
+    let tray = app.tray_by_id(TRAY_ID).ok_or("Tray icon not found")?;
+    let menu = tray_menu(&app, &texts).map_err(|e| e.to_string())?;
+    tray.set_menu(Some(menu)).map_err(|e| e.to_string())?;
+    tray.set_tooltip(Some(texts.tooltip)).map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -69,14 +81,11 @@ fn show_main_window(app: &AppHandle) {
 }
 
 fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
-    // Placeholder texts until the frontend sets them from src/i18n via set_tray_texts.
-    let open = MenuItem::with_id(app, "open", "Openen", true, None::<&str>)?;
-    let check = MenuItem::with_id(app, "check", "Nu controleren", true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", "Afsluiten", true, None::<&str>)?;
-    let menu = Menu::with_items(app, &[&open, &check, &quit])?;
+    let texts = default_tray_texts();
+    let menu = tray_menu(app, &texts)?;
 
-    let mut tray = TrayIconBuilder::with_id("main")
-        .tooltip("Vaarpapieren")
+    let mut tray = TrayIconBuilder::with_id(TRAY_ID)
+        .tooltip(&texts.tooltip)
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| match event.id.as_ref() {
@@ -99,8 +108,7 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
     if let Some(icon) = app.default_window_icon() {
         tray = tray.icon(icon.clone());
     }
-    let tray = tray.build(app)?;
-    app.manage(TrayItems { open, check, quit, tray });
+    tray.build(app)?;
     Ok(())
 }
 
