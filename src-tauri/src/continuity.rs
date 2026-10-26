@@ -3,9 +3,10 @@
 //! A menu item with AppKit's `NSMenuItemImportFromDeviceIdentifier` is filled in by macOS with
 //! the nearby iPhones and iPads. macOS only offers it when the responder chain has an object that
 //! accepts images or PDFs (`validRequestorForSendType:returnType:`); the scan is then delivered to
-//! that object through `readSelectionFromPasteboard:`. This module installs such an object right
-//! after the window in the responder chain, writes what it receives to a temporary file and tells
-//! the frontend, which treats it like a file picked from disk.
+//! that object through `readSelectionFromPasteboard:`. This module installs such an object in the
+//! responder chain between the window's content view and the window (NSWindow itself does not ask
+//! its nextResponder), writes what it receives to a temporary file and tells the frontend, which
+//! treats it like a file picked from disk.
 
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -114,16 +115,17 @@ fn save_pasteboard(app: &AppHandle, pasteboard: &NSPasteboard) -> Result<String,
     Ok(path.to_string_lossy().into_owned())
 }
 
-/// Puts the responder right after the window in the responder chain. Call once, on the main thread.
+/// Puts the responder between the content view and the window. Call once, on the main thread.
 pub fn install(app: &AppHandle, window: &WebviewWindow) -> tauri::Result<()> {
     let mtm = MainThreadMarker::new().expect("setup runs on the main thread");
     let ns_window = window.ns_window()? as *mut NSWindow;
     let ns_window = unsafe { ns_window.as_ref() }.expect("main window has an NSWindow");
     let responder = ContinuityResponder::alloc(mtm).set_ivars(Ivars { app: app.clone() });
     let responder: Retained<ContinuityResponder> = unsafe { msg_send![super(responder), init] };
+    let content = ns_window.contentView().expect("main window has a content view");
     unsafe {
-        responder.setNextResponder(ns_window.nextResponder().as_deref());
-        ns_window.setNextResponder(Some(&responder));
+        responder.setNextResponder(content.nextResponder().as_deref());
+        content.setNextResponder(Some(&responder));
     }
     // nextResponder is not retained; the responder lives as long as the app.
     std::mem::forget(responder);
