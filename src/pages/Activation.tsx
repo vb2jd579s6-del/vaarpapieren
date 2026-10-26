@@ -1,13 +1,21 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import shield from "../assets/shield.svg";
 import { t } from "../i18n";
-import { isActivationCode, saveActivated } from "../lib/activation";
+import { isActivationCode, loadActivated, saveActivated } from "../lib/activation";
 
 /** One-time activation with the code from the owner; shown until it has been entered once. */
 export function Activation({ onActivated }: { onActivated: () => void }) {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Check the database once more first: if the app is activated after all, skip this screen. */
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    loadActivated()
+      .then((activated) => (activated ? onActivated() : setChecking(false)))
+      .catch(() => setChecking(false));
+  }, [onActivated]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,6 +33,8 @@ export function Activation({ onActivated }: { onActivated: () => void }) {
     }
     setBusy(false);
   };
+
+  if (checking) return <div className="activation" />;
 
   return (
     <div className="activation">

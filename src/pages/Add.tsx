@@ -26,17 +26,25 @@ const EMPTY_FORM: DocumentForm = {
 };
 
 interface AddProps {
+  /**
+   * The page stays mounted while other tabs are shown, so a half-filled form survives a look at
+   * the Overview; it is only cleared by "Clear form", by saving, or by quitting the app.
+   */
+  visible: boolean;
   onSaved: () => void;
-  initialFile?: string | null;
+  /** Bring this page to the front (a scan from the menu bar arrived). */
+  onShow: () => void;
+  /** A scan handed over while this page was not listening; added to the files. */
+  pendingFile?: { path: string; nonce: number } | null;
   /** Prefills a new document type (from a missing requirement). */
-  initialClassName?: string;
+  pendingName?: { name: string; nonce: number } | null;
 }
 
-export function Add({ onSaved, initialFile = null, initialClassName = "" }: AddProps) {
+export function Add({ visible, onSaved, onShow, pendingFile = null, pendingName = null }: AddProps) {
   const [classes, setClasses] = useState<DocumentClass[]>([]);
   const [versionCounts, setVersionCounts] = useState<Map<number, number>>(new Map());
-  const [form, setForm] = useState<DocumentForm>(() => ({ ...EMPTY_FORM, newClassName: initialClassName }));
-  const [files, setFiles] = useState<string[]>(initialFile ? [initialFile] : []);
+  const [form, setForm] = useState<DocumentForm>(EMPTY_FORM);
+  const [files, setFiles] = useState<string[]>([]);
   /** What the last added file suggests, or that it is being read. */
   const [scan, setScan] = useState<{ name: string; info: ScanInfo | null } | null>(null);
 
@@ -74,16 +82,21 @@ export function Add({ onSaved, initialFile = null, initialClassName = "" }: AddP
     setScan(null);
   };
 
-  // A scan handed over by the menu bar arrives as the initial file.
   useEffect(() => {
-    if (initialFile) void readNewFiles([initialFile]);
+    if (pendingFile) addFiles([pendingFile.path]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pendingFile?.nonce]);
+
+  useEffect(() => {
+    if (pendingName) setForm((f) => ({ ...f, classChoice: "new", newClassName: pendingName.name }));
+  }, [pendingName?.nonce]); // eslint-disable-line react-hooks/exhaustive-deps
   const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Reload the document types each time the page is shown: they may have changed meanwhile.
   useEffect(() => {
+    if (!visible) return;
     getDb()
       .then(async (db) => {
         const [cls, versions] = await Promise.all([listClasses(db), listVersions(db)]);
@@ -93,7 +106,15 @@ export function Add({ onSaved, initialFile = null, initialClassName = "" }: AddP
         setVersionCounts(counts);
       })
       .catch((err) => setSaveError(String(err)));
-  }, []);
+  }, [visible]);
+
+  const clearForm = () => {
+    setForm(EMPTY_FORM);
+    setFiles([]);
+    setScan(null);
+    setErrors({});
+    setSaveError(null);
+  };
 
   const patch = (changes: Partial<DocumentForm>) => {
     setForm((f) => ({ ...f, ...changes }));
@@ -121,6 +142,8 @@ export function Add({ onSaved, initialFile = null, initialClassName = "" }: AddP
     setSaving(true);
     try {
       await saveNewDocument(await getDb(), form, valid, files);
+      clearForm();
+      setSaving(false);
       onSaved();
     } catch (e) {
       setSaveError(String(e));
@@ -245,7 +268,10 @@ export function Add({ onSaved, initialFile = null, initialClassName = "" }: AddP
       <FileList
         items={files.map((path) => ({ key: path, name: fileName(path) }))}
         onAdd={chooseFile}
-        onAddPath={(path) => addFiles([path])}
+        onAddPath={(path) => {
+          addFiles([path]);
+          onShow();
+        }}
         onRemove={(path) => setFiles((list) => list.filter((p) => p !== path))}
         onError={(e) => setSaveError(String(e))}
       />
@@ -260,13 +286,7 @@ export function Add({ onSaved, initialFile = null, initialClassName = "" }: AddP
           type="button"
           className="btn"
           disabled={saving}
-          onClick={() => {
-            setForm(EMPTY_FORM);
-            setFiles([]);
-            setScan(null);
-            setErrors({});
-            setSaveError(null);
-          }}
+          onClick={clearForm}
         >
           {t.add.reset}
         </button>

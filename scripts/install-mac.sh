@@ -40,5 +40,9 @@ ditto "$SRC" "$DEST.new"
 rm -rf "$DEST"
 mv "$DEST.new" "$DEST"
 
+# Only the copy in /Applications should exist; the build output would show up in Spotlight and
+# Launchpad as a second Vaarpapieren (the update archive next to it stays).
+rm -rf "$SRC"
+
 echo "Geïnstalleerd: $DEST"
 open "$DEST"

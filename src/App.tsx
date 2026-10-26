@@ -63,6 +63,7 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
   const [focus, setFocus] = useState<{ versionId: number; nonce: number } | null>(null);
   const endSplash = useCallback(() => setShowSplash(false), []);
+  const markActivated = useCallback(() => setActivated(true), []);
 
   // A scan from the menu bar's Import from iPhone, with no Add page open: open one with it.
   useEffect(
@@ -105,7 +106,7 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
   };
 
   if (showSplash) return <Splash onDone={endSplash} />;
-  if (!activated) return <Activation onActivated={() => setActivated(true)} />;
+  if (!activated) return <Activation onActivated={markActivated} />;
   if (locked) return <LockScreen onUnlocked={() => setLocked(false)} />;
 
   const tabs: TabItem<"overview" | "add" | "career">[] = [
@@ -130,14 +131,15 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
       </header>
       <main className="content">
         {page === "overview" && <Overview key={focus?.nonce} focusVersionId={focus?.versionId} onAdd={() => setPage("add")} />}
-        {page === "add" && (
+        <div hidden={page !== "add"}>
           <Add
-            key={`${pendingScan?.nonce}-${pendingName?.nonce}`}
-            initialFile={pendingScan?.path ?? null}
-            initialClassName={pendingName?.name ?? ""}
+            visible={page === "add"}
+            pendingFile={pendingScan}
+            pendingName={pendingName}
+            onShow={() => setPage("add")}
             onSaved={() => setPage("overview")}
           />
-        )}
+        </div>
         {page === "career" && <Career onAddDocument={(name) => (setPendingName({ name, nonce: Date.now() }), setPage("add"))} />}
         {page === "settings" && (
           <Settings
