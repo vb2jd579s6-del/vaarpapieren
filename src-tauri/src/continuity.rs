@@ -62,7 +62,16 @@ define_class!(
         #[unsafe(method(readSelectionFromPasteboard:))]
         fn read_selection(&self, pasteboard: &NSPasteboard) -> bool {
             match save_pasteboard(&self.ivars().app, pasteboard) {
-                Ok(path) => self.ivars().app.emit(EVENT_CONTINUITY_IMPORT, path).is_ok(),
+                Ok(path) => {
+                    // AppKit calls this from inside the menu that started the import, while that
+                    // still has the webview busy. Emitting right here would wait for the webview
+                    // and so deadlock the main thread; hand it to another thread instead.
+                    let app = self.ivars().app.clone();
+                    std::thread::spawn(move || {
+                        let _ = app.emit(EVENT_CONTINUITY_IMPORT, path);
+                    });
+                    true
+                }
                 Err(err) => {
                     eprintln!("Continuity Camera import failed: {err}");
                     false
@@ -160,8 +169,11 @@ pub fn add_to_edit_menu(title: &str) {
 
 /// Shows a contextual menu at (x, y), in CSS pixels of the page (below the button that asked).
 /// AppKit adds the Continuity Camera item ("Import from iPhone ›") itself.
+///
+/// Async so the click's request finishes first: the menu, and the import AppKit runs from it,
+/// then happen on the main thread outside WebKit's handling of that request.
 #[tauri::command]
-pub fn show_iphone_import_menu(window: WebviewWindow, x: f64, y: f64, title: String) -> Result<(), String> {
+pub async fn show_iphone_import_menu(window: WebviewWindow, x: f64, y: f64, title: String) -> Result<(), String> {
     let window_for_number = window.clone();
     window
         .with_webview(move |webview| {
