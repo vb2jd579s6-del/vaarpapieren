@@ -6,16 +6,16 @@ Een nieuwe sessie gaat verder bij het eerste open vinkje. Versie pas verhogen bi
 gebruiker erom vraagt.
 
 ## 1. Vaartijd bijhouden
-- [ ] Migratie `0003_sea_service.sql`: tabel `sea_service` (schip, type, IMO, functie,
+- [x] Migratie `0003_sea_service.sql`: tabel `sea_service` (schip, type, IMO, functie,
       aanmonsteren, afmonsteren (leeg = nog aan boord), notities). Ook in `testDb.ts`.
-- [ ] `src/lib/db/seaService.ts`: lijst, toevoegen, bewerken, verwijderen.
-- [ ] `src/lib/domain/seaTime.ts` (getest): dagen per periode (inclusief begin- en einddag),
+- [x] `src/lib/db/seaService.ts`: lijst, toevoegen, bewerken, verwijderen.
+- [x] `src/lib/domain/seaTime.ts` (getest): dagen per periode (inclusief begin- en einddag),
       overlappende periodes niet dubbel tellen, totaal, laatste 5 jaar, laatste 6 maanden,
       per functie en per scheepstype. Verlenging CoC (STCW I/11): 12 maanden (365 dagen) in de
       laatste 5 jaar.
-- [ ] Nieuw tabblad **Loopbaan** met onderdeel **Vaartijd**: lijst met periodes, formulier,
+- [x] Nieuw tabblad **Loopbaan** met onderdeel **Vaartijd**: lijst met periodes, formulier,
       totalen en voortgangsbalk naar 365 dagen.
-- [ ] Teksten in zes talen.
+- [x] Teksten in zes talen.
 
 ## 2. Eisen per functie
 - [ ] `src/lib/domain/requirements.ts` (getest): ingebouwde functieprofielen (o.a. matroos,

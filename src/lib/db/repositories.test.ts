@@ -3,6 +3,7 @@ import { createClass, deleteEmptyClass, findClassByName, listClasses } from "./c
 import { clearNotified, listNotificationLog, markNotified } from "./notificationLog";
 import { getSetting, getThresholds, setSetting, setThresholds } from "./settings";
 import { addFile } from "./documentFiles";
+import { addSeaService, deleteSeaService, listSeaService, updateSeaService } from "./seaService";
 import { createTestDb } from "./testDb";
 import type { Db } from "./types";
 import { createVersion, listVersions, type NewVersion } from "./versions";
@@ -101,6 +102,21 @@ describe("repositories", () => {
     const v = await createVersion(db, version(id, "2020-01-01"));
     await addFile(db, v, { file_path: "files/a.pdf", original_filename: null }, 0);
     await expect(db.execute("DELETE FROM document_version WHERE id = $1", [v])).rejects.toThrow();
+  });
+});
+
+describe("sea service", () => {
+  it("adds, lists newest first, updates and deletes periods", async () => {
+    const db = createTestDb();
+    const base = { vessel_type: "tanker" as const, imo_number: "9123456", rank: "OOW", notes: null };
+    const a = await addSeaService(db, { ...base, vessel_name: " MT Example ", sign_on: "2025-01-01", sign_off: "2025-04-30" });
+    await addSeaService(db, { ...base, vessel_name: "MV Other", sign_on: "2026-09-01", sign_off: null });
+    expect((await listSeaService(db)).map((s) => s.vessel_name)).toEqual(["MV Other", "MT Example"]);
+    await updateSeaService(db, a, { ...base, vessel_name: "MT Example", sign_on: "2025-01-01", sign_off: "2025-05-15" });
+    expect((await listSeaService(db)).find((s) => s.id === a)?.sign_off).toBe("2025-05-15");
+    await expect(addSeaService(db, { ...base, vessel_name: "X", sign_on: "2025-02-01", sign_off: "2025-01-01" })).rejects.toThrow();
+    await deleteSeaService(db, a);
+    expect(await listSeaService(db)).toHaveLength(1);
   });
 });
 

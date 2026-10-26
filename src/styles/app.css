@@ -374,3 +374,21 @@ button.preview-large:hover .preview-hint, button.preview-large:focus-visible .pr
 .scan-facts { font-size: 13px; }
 .path-notice { word-break: break-word; }
 .toolbar .btn-icon-text { display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-pill); }
+
+/* Career: sea time */
+.career { display: flex; flex-direction: column; gap: 16px; }
+.career-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.career-head h2 { margin: 0; }
+.sea-time { display: flex; flex-direction: column; gap: 14px; }
+.sea-time > p { margin: 0; }
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow-sm); }
+.stat-label { font-size: 12px; color: var(--text-muted); }
+.stat strong { font-size: 20px; }
+.revalidation { gap: 8px; }
+.progress { height: 10px; border-radius: var(--radius-pill); background: var(--surface-2); overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--warning); border-radius: inherit; transition: width 400ms ease; }
+.progress span.done { background: var(--valid); }
+.aboard-badge { align-self: flex-start; }
+.breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.sea-time .toolbar { margin: 0; }

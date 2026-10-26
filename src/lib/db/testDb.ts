@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import type { Db } from "./types";
 
-const MIGRATION_FILES = ["0001_init.sql", "0002_document_files.sql"];
+const MIGRATION_FILES = ["0001_init.sql", "0002_document_files.sql", "0003_sea_service.sql"];
 const MIGRATIONS = MIGRATION_FILES.map((name) =>
   readFileSync(new URL(`../../../src-tauri/migrations/${name}`, import.meta.url), "utf8"),
 );

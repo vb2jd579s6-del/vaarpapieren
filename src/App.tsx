@@ -11,13 +11,14 @@ import { RELOCK_AFTER_MS, saveLockEnabled } from "./lib/lock";
 import { Activation } from "./pages/Activation";
 import { LockScreen } from "./pages/LockScreen";
 import { Add } from "./pages/Add";
+import { Career } from "./pages/Career";
 import { Overview } from "./pages/Overview";
 import { Settings } from "./pages/Settings";
 import { Splash } from "./pages/Splash";
 import "./styles/theme.css";
 import "./styles/app.css";
 
-type Page = "overview" | "add" | "settings";
+type Page = "overview" | "add" | "career" | "settings";
 
 function GearIcon() {
   return (
@@ -105,9 +106,10 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
   if (!activated) return <Activation onActivated={() => setActivated(true)} />;
   if (locked) return <LockScreen onUnlocked={() => setLocked(false)} />;
 
-  const tabs: TabItem<"overview" | "add">[] = [
+  const tabs: TabItem<"overview" | "add" | "career">[] = [
     { id: "overview", label: t.tabs.overview },
     { id: "add", label: t.tabs.add },
+    { id: "career", label: t.tabs.career },
   ];
 
   return (
@@ -127,6 +129,7 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
       <main className="content">
         {page === "overview" && <Overview key={focus?.nonce} focusVersionId={focus?.versionId} onAdd={() => setPage("add")} />}
         {page === "add" && <Add key={pendingScan?.nonce} initialFile={pendingScan?.path ?? null} onSaved={() => setPage("overview")} />}
+        {page === "career" && <Career />}
         {page === "settings" && (
           <Settings
             language={lang}
