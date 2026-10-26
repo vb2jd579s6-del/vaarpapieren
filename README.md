@@ -70,7 +70,7 @@ cd ../../.. && npx tauri icon src-tauri/icons/source/app-icon.png && rm -r src-t
 
 De menubalk op macOS gebruikt `tray-template.png`: een zwart sjabloon dat macOS zelf kleurt voor een lichte of donkere menubalk. Windows toont het gekleurde app-icoon in het systeemvak. Toont het Dock nog het oude icoon, voer dan `killall Dock` uit.
 
-**Talen:** de app is er in het Nederlands, Engels, Duits, Spaans, Frans en Tagalog (Filipino). Elke taal staat in een eigen bestand in `src/i18n/`: `nl.ts`, `en.ts`, `de.ts`, `es.ts`, `fr.ts` en `tl.ts`. Je kiest de taal onder Instellingen → Taal. De keuze geldt direct, ook voor het tray-menu en de meldingen, en wordt in de database onthouden.
+**Talen:** de app is er in het Nederlands, Engels, Duits, Spaans, Frans en Tagalog (Filipino). Elke taal staat in een eigen bestand in `src/i18n/`: `nl.ts`, `en.ts`, `de.ts`, `es.ts`, `fr.ts` en `tl.ts`. Je kiest de taal onder Instellingen → Taal. De keuze geldt direct, ook voor het tray-menu, het appmenu bovenin (macOS) en de meldingen, en wordt in de database onthouden.
 
 Een taal toevoegen:
 1. Kopieer `en.ts`, vertaal de teksten en voeg de taal toe aan `LANGUAGES` en `LANGUAGE_NAMES` in `src/i18n/index.ts`.
