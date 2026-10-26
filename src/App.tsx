@@ -6,7 +6,10 @@ import { changeLanguage } from "./lib/language";
 import { saveTabsPosition, type TabsPosition } from "./lib/layout";
 import { listenForIphoneImports } from "./lib/files";
 import { startNotificationService } from "./lib/notifications";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { RELOCK_AFTER_MS, saveLockEnabled } from "./lib/lock";
 import { Activation } from "./pages/Activation";
+import { LockScreen } from "./pages/LockScreen";
 import { Add } from "./pages/Add";
 import { Overview } from "./pages/Overview";
 import { Settings } from "./pages/Settings";
@@ -29,15 +32,29 @@ function GearIcon() {
 interface AppProps {
   initialTabsPosition: TabsPosition;
   initiallyActivated: boolean;
+  initialLockEnabled: boolean;
 }
 
-export default function App({ initialTabsPosition, initiallyActivated }: AppProps) {
+export default function App({ initialTabsPosition, initiallyActivated, initialLockEnabled }: AppProps) {
   const [showSplash, setShowSplash] = useState(true);
   const [page, setPage] = useState<Page>("overview");
   /** Mirrors the active language so a switch re-renders everything with the new texts. */
   const [lang, setLang] = useState<Language>(language);
   const [tabsPosition, setTabsPosition] = useState(initialTabsPosition);
   const [activated, setActivated] = useState(initiallyActivated);
+  const [lockEnabled, setLockEnabled] = useState(initialLockEnabled);
+  const [locked, setLocked] = useState(initialLockEnabled);
+
+  // Relock when the window comes back after a while in the background (or hidden in the tray).
+  useEffect(() => {
+    if (!lockEnabled) return;
+    let leftAt: number | null = null;
+    const stop = getCurrentWindow().onFocusChanged(({ payload: focused }) => {
+      if (!focused) leftAt = Date.now();
+      else if (leftAt !== null && Date.now() - leftAt > RELOCK_AFTER_MS) setLocked(true);
+    });
+    return () => void stop.then((unlisten) => unlisten());
+  }, [lockEnabled]);
   /** A scan that arrived while no Add page was open; the nonce remounts Add so it takes it over. */
   const [pendingScan, setPendingScan] = useState<{ path: string; nonce: number } | null>(null);
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
@@ -86,6 +103,7 @@ export default function App({ initialTabsPosition, initiallyActivated }: AppProp
 
   if (showSplash) return <Splash onDone={endSplash} />;
   if (!activated) return <Activation onActivated={() => setActivated(true)} />;
+  if (locked) return <LockScreen onUnlocked={() => setLocked(false)} />;
 
   const tabs: TabItem<"overview" | "add">[] = [
     { id: "overview", label: t.tabs.overview },
@@ -110,7 +128,17 @@ export default function App({ initialTabsPosition, initiallyActivated }: AppProp
         {page === "overview" && <Overview key={focus?.nonce} focusVersionId={focus?.versionId} onAdd={() => setPage("add")} />}
         {page === "add" && <Add key={pendingScan?.nonce} initialFile={pendingScan?.path ?? null} onSaved={() => setPage("overview")} />}
         {page === "settings" && (
-          <Settings language={lang} onLanguageChange={switchLanguage} tabsPosition={tabsPosition} onTabsPositionChange={moveTabs} />
+          <Settings
+            language={lang}
+            onLanguageChange={switchLanguage}
+            tabsPosition={tabsPosition}
+            onTabsPositionChange={moveTabs}
+            lockEnabled={lockEnabled}
+            onLockEnabledChange={(on) => {
+              setLockEnabled(on);
+              saveLockEnabled(on).catch((err) => console.error("Could not save the lock setting", err));
+            }}
+          />
         )}
       </main>
     </div>

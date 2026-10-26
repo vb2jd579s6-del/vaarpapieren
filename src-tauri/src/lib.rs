@@ -1,6 +1,8 @@
 #[cfg(target_os = "macos")]
 mod continuity;
 #[cfg(target_os = "macos")]
+mod lock;
+#[cfg(target_os = "macos")]
 mod ocr;
 mod files;
 mod transfer;
@@ -355,6 +357,10 @@ pub fn run() {
             continuity::show_iphone_import_menu,
             #[cfg(target_os = "macos")]
             ocr::recognize_document_text,
+            #[cfg(target_os = "macos")]
+            lock::can_lock,
+            #[cfg(target_os = "macos")]
+            lock::authenticate,
             set_menu_texts,
             transfer::export_data,
             transfer::backup_data,

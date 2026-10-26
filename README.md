@@ -208,6 +208,24 @@ Je kunt ook de vervaldatum van het testdocument aanpassen.
    - macOS: zichtbaar onder Systeeminstellingen → Algemeen → **Inloggen**.
    - In dev-modus registreert autostart het dev-programma. Zet het na het testen weer uit, en test autostart met een gebouwde of geïnstalleerde app.
 
+## Functies per platform
+
+| Functie | macOS | Windows |
+|---|---|---|
+| Documenten, versies en meerdere bestanden per document | ✓ | ✓ |
+| Meldingen, tray-menu, autostart, zes talen | ✓ | ✓ |
+| Certificatenlijst als PDF (Overzicht → Certificatenlijst) | ✓ | ✓ |
+| Exporteren en importeren (Instellingen → Gegevens overzetten) | ✓ | ✓ |
+| Importeren vanaf iPhone (Continuity Camera) | ✓ | – |
+| Datums en documentnummer uit een scan halen (Vision, offline) | ✓ | – |
+| Vergrendelen met Touch ID of wachtwoord | ✓ | – |
+
+**Exporteren en importeren** gaat met één `.vaarpapieren`-bestand, op Mac en Windows hetzelfde. In dat bestand zit een zip met `manifest.json` (de documenten, de versies, de gegevens van de bestanden, de meldingsgeschiedenis en de instellingen) en de documentbestanden zelf.
+
+Importeren vervangt alle gegevens. Daarvoor zet de app eerst automatisch een back-up in de map `backups/`, in de opslagmap van de app. De activatie en de Touch ID-instelling gaan niet mee, want die horen bij de computer.
+
+**Uit de scan halen:** na het toevoegen van een bestand leest de app de tekst. Gevonden datums en een documentnummer verschijnen als voorstel, met **Overnemen** en **Negeren**. Getypte certificaten werken goed. Handgeschreven of slecht leesbare velden worden overgeslagen, zodat de app niets verkeerds invult.
+
 ## Importeren vanaf iPhone (macOS)
 
 Onder **Toevoegen**, en bij **Bewerken** om een bestand te vervangen, staat de knop **Importeer vanaf iPhone…**. Hetzelfde staat bovenin onder **Wijzig → Importeer vanaf iPhone**; een scan via dat menu opent de pagina Toevoegen. Dat is dezelfde functie als in het contextmenu van het bureaublad (Continuity Camera). Kies je iPhone en daarna **Scan documenten** of **Maak foto**. Het resultaat komt binnen als gekozen bestand: een scan als PDF, een foto als JPG of PNG. Daarna sla je op zoals gewoonlijk.

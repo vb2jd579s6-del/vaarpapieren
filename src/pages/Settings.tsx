@@ -9,6 +9,7 @@ import { TABS_POSITIONS, type TabsPosition } from "../lib/layout";
 import { formatDate } from "../lib/domain/dates";
 import { InvalidExportError, type ExportManifest } from "../lib/transfer";
 import { applyImport, exportToFile, readImportFile } from "../lib/transferApp";
+import { authenticate, canUseLock } from "../lib/lock";
 import { appVersion, checkForUpdate, installUpdate } from "../lib/updates";
 import type { Update } from "@tauri-apps/plugin-updater";
 import { getDb } from "../lib/db/connection";
@@ -28,9 +29,11 @@ interface SettingsProps {
   onLanguageChange: (lang: Language) => void;
   tabsPosition: TabsPosition;
   onTabsPositionChange: (position: TabsPosition) => void;
+  lockEnabled: boolean;
+  onLockEnabledChange: (on: boolean) => void;
 }
 
-export function Settings({ language, onLanguageChange, tabsPosition, onTabsPositionChange }: SettingsProps) {
+export function Settings({ language, onLanguageChange, tabsPosition, onTabsPositionChange, lockEnabled, onLockEnabledChange }: SettingsProps) {
   const [thresholds, setThresholdState] = useState<number[] | null>(null);
   const [newDays, setNewDays] = useState("");
   const [inputError, setInputError] = useState(false);
@@ -47,6 +50,9 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
   const [transferring, setTransferring] = useState<"export" | "import" | null>(null);
   const [pendingImport, setPendingImport] = useState<ExportManifest | null>(null);
   const [imported, setImported] = useState<{ documents: number; backup: string } | null>(null);
+  /** null: not on macOS (section hidden); false: no Touch ID or password on this Mac. */
+  const [lockAvailable, setLockAvailable] = useState<boolean | null>(null);
+  const [lockStatus, setLockStatus] = useState<string | null>(null);
 
   const fail = (err: unknown) => setStatus({ kind: "error", text: `${t.settings.error} ${t.common.error(String(err))}` });
 
@@ -55,6 +61,7 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
     isEnabled().then(setAutostart).catch(fail);
     appDataDir().then(setDataDir).catch(() => {});
     appVersion().then(setVersion).catch(() => {});
+    if (/Mac/.test(navigator.userAgent)) canUseLock().then(setLockAvailable).catch(() => setLockAvailable(false));
   }, []);
 
   const save = (next: number[]) => {
@@ -161,6 +168,17 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
     } finally {
       setPendingImport(null);
       setTransferring(null);
+    }
+  };
+
+  /** Turning the lock on or off needs the owner too, so nobody else can switch it off. */
+  const toggleLock = async (on: boolean) => {
+    setLockStatus(null);
+    try {
+      if (await authenticate(on ? t.settings.lockReasonOn : t.settings.lockReasonOff)) onLockEnabledChange(on);
+      else setLockStatus(t.lock.failed);
+    } catch (err) {
+      setLockStatus(t.common.error(String(err)));
     }
   };
 
@@ -289,6 +307,18 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
           </button>
         </div>
       </section>
+
+      {lockAvailable !== null && (
+        <section className="fieldset">
+          <h3 className="section-title">{t.settings.lockSection}</h3>
+          <label className="checkbox">
+            <input type="checkbox" checked={lockEnabled} disabled={!lockAvailable} onChange={(e) => toggleLock(e.target.checked)} />
+            {t.settings.lockToggle}
+          </label>
+          <p className="field-hint">{lockAvailable ? t.settings.lockHint : t.settings.lockUnavailable}</p>
+          {lockStatus && <span className="field-error">{lockStatus}</span>}
+        </section>
+      )}
 
       <section className="fieldset">
         <h3 className="section-title">{t.settings.startupSection}</h3>

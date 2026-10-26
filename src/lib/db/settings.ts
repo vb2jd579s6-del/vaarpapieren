@@ -8,6 +8,8 @@ export const SETTING_KEYS = {
   tabsPosition: "tabs_position",
   activated: "activated",
   holderName: "holder_name",
+  /** Per computer: not exported, since Windows has no Touch ID. */
+  lockEnabled: "lock_enabled",
   thresholds: "notification_thresholds",
   /** Set once the first-start notice about notifications was dismissed. */
   notificationsIntroDone: "notifications_intro_done",
