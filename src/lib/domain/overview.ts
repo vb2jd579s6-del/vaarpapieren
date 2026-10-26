@@ -31,16 +31,38 @@ export function buildOverview(classes: DocumentClass[], versions: DocumentVersio
   });
 }
 
+/** The groups of the summary bar: expired, expiring within the warning period, and the rest. */
+export type StatusGroup = "expired" | "soon" | "valid";
+
+export function statusGroup(status: ExpiryStatus): StatusGroup {
+  if (status === "expired") return "expired";
+  if (status === "warning" || status === "critical") return "soon";
+  return "valid";
+}
+
+export function countByGroup(items: OverviewItem[]): Record<StatusGroup, number> {
+  const counts: Record<StatusGroup, number> = { expired: 0, soon: 0, valid: 0 };
+  for (const item of items) counts[statusGroup(item.status)]++;
+  return counts;
+}
+
+/** Current versions that still have to expire, soonest first (for the tray menu). */
+export function upcomingExpiries(items: OverviewItem[], limit: number): OverviewItem[] {
+  return items.filter((i) => i.daysLeft !== null && i.daysLeft >= 0).slice(0, limit);
+}
+
 export interface OverviewFilter {
   category: Category | null;
   query: string;
+  group?: StatusGroup | null;
 }
 
-export function filterOverview(items: OverviewItem[], { category, query }: OverviewFilter): OverviewItem[] {
+export function filterOverview(items: OverviewItem[], { category, query, group = null }: OverviewFilter): OverviewItem[] {
   const q = query.trim().toLocaleLowerCase("nl");
   return items.filter(
     (item) =>
       (category === null || item.documentClass.category === category) &&
+      (group === null || statusGroup(item.status) === group) &&
       (q === "" || item.documentClass.name.toLocaleLowerCase("nl").includes(q)),
   );
 }

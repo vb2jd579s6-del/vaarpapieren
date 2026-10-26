@@ -1,4 +1,5 @@
-import { invoke } from "@tauri-apps/api/core";
+import { convertFileSrc, invoke } from "@tauri-apps/api/core";
+import { appDataDir, join } from "@tauri-apps/api/path";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 
@@ -65,4 +66,21 @@ export function onIphoneImport(onFile: (path: string) => void): () => void {
 export function listenForIphoneImports(fallback: (path: string) => void): () => void {
   const stop = listen<string>("continuity-import", (e) => (importHandlers[importHandlers.length - 1] ?? fallback)(e.payload));
   return () => void stop.then((unlisten) => unlisten());
+}
+
+let dataDir: Promise<string> | null = null;
+
+/** URL the webview can show for a stored file (asset protocol, limited to the files folder). */
+export async function previewUrl(filePath: string): Promise<string> {
+  dataDir ??= appDataDir();
+  return convertFileSrc(await join(await dataDir, filePath));
+}
+
+export type PreviewKind = "image" | "pdf" | null;
+
+export function previewKind(filePath: string | null): PreviewKind {
+  const ext = filePath?.split(".").pop()?.toLowerCase();
+  if (ext === "jpg" || ext === "jpeg" || ext === "png") return "image";
+  if (ext === "pdf") return "pdf";
+  return null;
 }

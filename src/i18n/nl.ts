@@ -27,6 +27,12 @@ export const nl = {
     expires: "Verloopt",
     authority: "Instantie",
     number: "Nummer",
+    summary: {
+      expired: (n: number) => `${n} verlopen`,
+      soon: (n: number) => `${n} binnenkort`,
+      valid: (n: number) => `${n} geldig`,
+      showAll: "Alles tonen",
+    },
   },
   add: {
     title: "Document toevoegen",
@@ -138,7 +144,7 @@ export const nl = {
     introTest: "Testmelding sturen",
     introDone: "Begrepen",
   },
-  tray: { open: "Openen", check: "Nu controleren", quit: "Afsluiten", tooltip: "Vaarpapieren" },
+  tray: { open: "Openen", check: "Nu controleren", quit: "Afsluiten", tooltip: "Vaarpapieren", upcomingTitle: "Eerstvolgende vervaldatums" },
   /** macOS app menu at the top of the screen (the first menu is always titled with the app name). */
   appMenu: {
     about: "Over Vaarpapieren",
@@ -179,6 +185,12 @@ export const nl = {
     expiresToday: "verloopt vandaag",
     expiredAgo: (days: number) => (days === 1 ? "1 dag geleden verlopen" : `${days} dagen geleden verlopen`),
     noExpiry: "verloopt niet",
+  },
+  preview: {
+    noFile: "Geen bestand",
+    noPreview: "Geen voorbeeld beschikbaar",
+    clickToOpen: "Klik om te openen",
+    close: "Sluiten",
   },
   version: {
     superseded: "Vervangen",

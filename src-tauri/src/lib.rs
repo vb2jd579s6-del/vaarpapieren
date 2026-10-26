@@ -42,14 +42,30 @@ const CHECK_INTERVAL: Duration = Duration::from_secs(6 * 60 * 60);
 
 const TRAY_ID: &str = "main";
 
-/// Tray menu texts, set from the frontend (src/i18n) so they follow the chosen language.
+/// Tray menu texts, set from the frontend (src/i18n) so they follow the chosen language, plus the
+/// next documents to expire.
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct TrayTexts {
     open: String,
     check: String,
     quit: String,
     tooltip: String,
+    #[serde(default)]
+    upcoming_title: String,
+    #[serde(default)]
+    upcoming: Vec<TrayDocument>,
 }
+
+/// "Basic Safety Training — nog 21 dagen geldig"; choosing it opens the app at that document.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct TrayDocument {
+    label: String,
+    version_id: i32,
+}
+
+const TRAY_DOCUMENT_PREFIX: &str = "doc:";
 
 /// Placeholder texts until the frontend has loaded the saved language.
 fn default_tray_texts() -> TrayTexts {
@@ -58,14 +74,26 @@ fn default_tray_texts() -> TrayTexts {
         check: "Nu controleren".into(),
         quit: "Afsluiten".into(),
         tooltip: "Vaarpapieren".into(),
+        upcoming_title: String::new(),
+        upcoming: Vec::new(),
     }
 }
 
 fn tray_menu(app: &AppHandle, texts: &TrayTexts) -> tauri::Result<Menu<Wry>> {
-    let open = MenuItem::with_id(app, "open", &texts.open, true, None::<&str>)?;
-    let check = MenuItem::with_id(app, "check", &texts.check, true, None::<&str>)?;
-    let quit = MenuItem::with_id(app, "quit", &texts.quit, true, None::<&str>)?;
-    Menu::with_items(app, &[&open, &check, &quit])
+    use tauri::menu::PredefinedMenuItem;
+    let menu = Menu::new(app)?;
+    if !texts.upcoming.is_empty() {
+        menu.append(&MenuItem::with_id(app, "upcoming", &texts.upcoming_title, false, None::<&str>)?)?;
+        for doc in &texts.upcoming {
+            let id = format!("{TRAY_DOCUMENT_PREFIX}{}", doc.version_id);
+            menu.append(&MenuItem::with_id(app, id, &doc.label, true, None::<&str>)?)?;
+        }
+        menu.append(&PredefinedMenuItem::separator(app)?)?;
+    }
+    menu.append(&MenuItem::with_id(app, "open", &texts.open, true, None::<&str>)?)?;
+    menu.append(&MenuItem::with_id(app, "check", &texts.check, true, None::<&str>)?)?;
+    menu.append(&MenuItem::with_id(app, "quit", &texts.quit, true, None::<&str>)?)?;
+    Ok(menu)
 }
 
 /// Replaces the whole tray menu: renaming the existing items does not show on macOS.
@@ -228,7 +256,12 @@ fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
                 let _ = app.emit(EVENT_CHECK_NOW, ());
             }
             "quit" => app.exit(0),
-            _ => {}
+            id => {
+                if let Some(version_id) = id.strip_prefix(TRAY_DOCUMENT_PREFIX).and_then(|v| v.parse::<i32>().ok()) {
+                    show_main_window(app);
+                    let _ = app.emit(EVENT_OPEN_DOCUMENT, version_id);
+                }
+            }
         });
     // macOS: a monochrome template image, which the menu bar tints for light and dark mode.
     // Windows: the coloured app icon, like other apps in the system tray.

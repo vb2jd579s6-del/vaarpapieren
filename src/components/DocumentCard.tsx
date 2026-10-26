@@ -3,6 +3,7 @@ import { formatDate } from "../lib/domain/dates";
 import type { OverviewItem } from "../lib/domain/overview";
 import { expiryText } from "../lib/expiryText";
 import { DocumentActions, type VersionHandlers } from "./DocumentActions";
+import { DocumentPreview } from "./DocumentPreview";
 import { StatusBadge } from "./StatusBadge";
 import { useFocus, useVersionSelection, VersionNavigator } from "./VersionNavigator";
 
@@ -13,7 +14,21 @@ export function DocumentCard({ item, handlers, focusVersionId }: { item: Overvie
   const shownStatus = isCurrent ? status : "superseded";
 
   return (
-    <article ref={focusRef} className={`card status-${shownStatus}${focused ? " focused" : ""}`}>
+    <article
+      ref={focusRef}
+      className={`card clickable status-${shownStatus}${focused ? " focused" : ""}`}
+      tabIndex={0}
+      aria-label={documentClass.name}
+      onClick={(e) => {
+        if (!(e.target as HTMLElement).closest("button, a, input")) handlers.onExpand(item, version.id, e.currentTarget);
+      }}
+      onKeyDown={(e) => {
+        if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          handlers.onExpand(item, version.id, e.currentTarget);
+        }
+      }}
+    >
       <header className="card-head">
         <div>
           <h3>{documentClass.name}</h3>
@@ -24,24 +39,27 @@ export function DocumentCard({ item, handlers, focusVersionId }: { item: Overvie
       <p className={`expiry-text expiry-${shownStatus}`}>
         {isCurrent ? expiryText(item.daysLeft) : t.version.replacedBy(formatDate(versions[index - 1].issue_date))}
       </p>
-      <dl className="facts">
-        <dt>{t.overview.issued}</dt>
-        <dd>{formatDate(version.issue_date)}</dd>
-        <dt>{t.overview.expires}</dt>
-        <dd className={isCurrent && status === "expired" ? "struck" : undefined}>{formatDate(version.expiry_date) || "—"}</dd>
-        {version.issuing_authority && (
-          <>
-            <dt>{t.overview.authority}</dt>
-            <dd>{version.issuing_authority}</dd>
-          </>
-        )}
-        {version.document_number && (
-          <>
-            <dt>{t.overview.number}</dt>
-            <dd>{version.document_number}</dd>
-          </>
-        )}
-      </dl>
+      <div className="card-body">
+        <dl className="facts">
+          <dt>{t.overview.issued}</dt>
+          <dd>{formatDate(version.issue_date)}</dd>
+          <dt>{t.overview.expires}</dt>
+          <dd className={isCurrent && status === "expired" ? "struck" : undefined}>{formatDate(version.expiry_date) || "—"}</dd>
+          {version.issuing_authority && (
+            <>
+              <dt>{t.overview.authority}</dt>
+              <dd>{version.issuing_authority}</dd>
+            </>
+          )}
+          {version.document_number && (
+            <>
+              <dt>{t.overview.number}</dt>
+              <dd>{version.document_number}</dd>
+            </>
+          )}
+        </dl>
+        <DocumentPreview version={version} size="thumb" />
+      </div>
       {version.notes && <p className="notes small">{version.notes}</p>}
       <footer className="card-foot">
         <VersionNavigator index={index} total={versions.length} older={older} newer={newer} />

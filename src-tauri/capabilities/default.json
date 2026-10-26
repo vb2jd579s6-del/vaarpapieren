@@ -15,6 +15,7 @@
     "fs:default",
     "autostart:default",
     "updater:default",
-    "process:allow-restart"
+    "process:allow-restart",
+    "core:window:allow-set-badge-count"
   ]
 }

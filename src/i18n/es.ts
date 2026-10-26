@@ -29,6 +29,12 @@ export const es: Messages = {
     expires: "Caduca",
     authority: "Autoridad",
     number: "Número",
+    summary: {
+      expired: (n: number) => (n === 1 ? "1 caducado" : `${n} caducados`),
+      soon: (n: number) => (n === 1 ? "1 caduca pronto" : `${n} caducan pronto`),
+      valid: (n: number) => (n === 1 ? "1 válido" : `${n} válidos`),
+      showAll: "Mostrar todo",
+    },
   },
   add: {
     title: "Añadir documento",
@@ -140,7 +146,7 @@ export const es: Messages = {
     introTest: "Enviar notificación de prueba",
     introDone: "Entendido",
   },
-  tray: { open: "Abrir", check: "Comprobar ahora", quit: "Salir", tooltip: "Vaarpapieren" },
+  tray: { open: "Abrir", check: "Comprobar ahora", quit: "Salir", tooltip: "Vaarpapieren", upcomingTitle: "Próximas caducidades" },
   appMenu: {
     about: "Acerca de Vaarpapieren",
     settings: "Ajustes…",
@@ -180,6 +186,12 @@ export const es: Messages = {
     expiresToday: "caduca hoy",
     expiredAgo: (days: number) => (days === 1 ? "caducó hace 1 día" : `caducó hace ${days} días`),
     noExpiry: "no caduca",
+  },
+  preview: {
+    noFile: "Sin archivo",
+    noPreview: "Vista previa no disponible",
+    clickToOpen: "Haz clic para abrir",
+    close: "Cerrar",
   },
   version: {
     superseded: "Sustituida",

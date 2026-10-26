@@ -29,6 +29,12 @@ export const tl: Messages = {
     expires: "Mag-e-expire",
     authority: "Nag-isyu",
     number: "Numero",
+    summary: {
+      expired: (n: number) => `${n} expired na`,
+      soon: (n: number) => `${n} malapit nang mag-expire`,
+      valid: (n: number) => `${n} valid`,
+      showAll: "Ipakita lahat",
+    },
   },
   add: {
     title: "Magdagdag ng dokumento",
@@ -140,7 +146,7 @@ export const tl: Messages = {
     introTest: "Magpadala ng test notification",
     introDone: "Sige",
   },
-  tray: { open: "Buksan", check: "Suriin ngayon", quit: "Lumabas", tooltip: "Vaarpapieren" },
+  tray: { open: "Buksan", check: "Suriin ngayon", quit: "Lumabas", tooltip: "Vaarpapieren", upcomingTitle: "Mga susunod na pag-expire" },
   appMenu: {
     about: "Tungkol sa Vaarpapieren",
     settings: "Mga Setting…",
@@ -180,6 +186,12 @@ export const tl: Messages = {
     expiresToday: "mag-e-expire ngayong araw",
     expiredAgo: (days: number) => (days === 1 ? "nag-expire 1 araw na ang nakalipas" : `nag-expire ${days} araw na ang nakalipas`),
     noExpiry: "hindi nag-e-expire",
+  },
+  preview: {
+    noFile: "Walang file",
+    noPreview: "Walang preview",
+    clickToOpen: "I-click para buksan",
+    close: "Isara",
   },
   version: {
     superseded: "Pinalitan",

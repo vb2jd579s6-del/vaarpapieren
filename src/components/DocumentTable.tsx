@@ -13,7 +13,13 @@ function DocumentRow({ item, handlers, focusVersionId }: { item: OverviewItem; h
   const shownStatus = isCurrent ? status : "superseded";
 
   return (
-    <tr ref={focusRef} className={`status-${shownStatus}${focused ? " focused" : ""}`}>
+    <tr
+      ref={focusRef}
+      className={`clickable status-${shownStatus}${focused ? " focused" : ""}`}
+      onClick={(e) => {
+        if (!(e.target as HTMLElement).closest("button, a, input")) handlers.onExpand(item, version.id, e.currentTarget);
+      }}
+    >
       <td>
         <strong>{documentClass.name}</strong>
         <VersionNavigator index={index} total={versions.length} older={older} newer={newer} />

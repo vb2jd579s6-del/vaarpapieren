@@ -29,6 +29,12 @@ export const fr: Messages = {
     expires: "Expire",
     authority: "Autorité",
     number: "Numéro",
+    summary: {
+      expired: (n: number) => (n === 1 ? "1 expiré" : `${n} expirés`),
+      soon: (n: number) => (n === 1 ? "1 expire bientôt" : `${n} expirent bientôt`),
+      valid: (n: number) => (n === 1 ? "1 valide" : `${n} valides`),
+      showAll: "Tout afficher",
+    },
   },
   add: {
     title: "Ajouter un document",
@@ -140,7 +146,7 @@ export const fr: Messages = {
     introTest: "Envoyer une notification de test",
     introDone: "Compris",
   },
-  tray: { open: "Ouvrir", check: "Vérifier maintenant", quit: "Quitter", tooltip: "Vaarpapieren" },
+  tray: { open: "Ouvrir", check: "Vérifier maintenant", quit: "Quitter", tooltip: "Vaarpapieren", upcomingTitle: "Prochaines expirations" },
   appMenu: {
     about: "À propos de Vaarpapieren",
     settings: "Réglages…",
@@ -180,6 +186,12 @@ export const fr: Messages = {
     expiresToday: "expire aujourd'hui",
     expiredAgo: (days: number) => (days === 1 ? "expiré depuis 1 jour" : `expiré depuis ${days} jours`),
     noExpiry: "n'expire pas",
+  },
+  preview: {
+    noFile: "Aucun fichier",
+    noPreview: "Aucun aperçu disponible",
+    clickToOpen: "Cliquez pour ouvrir",
+    close: "Fermer",
   },
   version: {
     superseded: "Remplacée",

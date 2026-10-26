@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOverview, filterOverview } from "./overview";
+import { buildOverview, countByGroup, filterOverview, upcomingExpiries } from "./overview";
 import type { Category, DocumentClass, DocumentVersion } from "./types";
 
 const cls = (id: number, name: string, category: Category = "STCW"): DocumentClass => ({ id, name, category, created_at: "" });
@@ -54,5 +54,23 @@ describe("filterOverview", () => {
     expect(filterOverview(items, { category: null, query: "  SAFETY " }).map((i) => i.documentClass.id)).toEqual([2]);
     expect(filterOverview(items, { category: "STCW", query: "pas" })).toEqual([]);
     expect(filterOverview(items, { category: null, query: "" })).toHaveLength(3);
+  });
+});
+
+describe("summary", () => {
+  const items = buildOverview(classes, versions, TODAY);
+  it("counts expired, soon and valid", () => {
+    expect(countByGroup(items)).toEqual({ expired: 0, soon: 1, valid: 2 });
+    const withExpired = buildOverview([...classes, cls(9, "ECDIS")], [...versions, ver(9, 9, "2020-01-01", "2026-10-01")], TODAY);
+    expect(countByGroup(withExpired)).toEqual({ expired: 1, soon: 1, valid: 2 });
+  });
+  it("filters on a group", () => {
+    expect(filterOverview(items, { category: null, query: "", group: "soon" }).map((i) => i.documentClass.id)).toEqual([2]);
+    expect(filterOverview(items, { category: null, query: "", group: "valid" }).map((i) => i.documentClass.id)).toEqual([1, 3]);
+  });
+  it("lists upcoming expiries, not expired or never-expiring ones", () => {
+    const withExpired = buildOverview([...classes, cls(9, "ECDIS")], [...versions, ver(9, 9, "2020-01-01", "2026-10-01")], TODAY);
+    expect(upcomingExpiries(withExpired, 3).map((i) => i.documentClass.name)).toEqual(["Basic Safety Training", "Paspoort"]);
+    expect(upcomingExpiries(withExpired, 1)).toHaveLength(1);
   });
 });

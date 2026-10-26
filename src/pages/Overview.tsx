@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DeleteDialog } from "../components/DeleteDialog";
 import type { VersionHandlers } from "../components/DocumentActions";
 import { DocumentCard } from "../components/DocumentCard";
 import { EditDialog } from "../components/EditDialog";
+import { ExpandedDocument } from "../components/ExpandedDocument";
 import { DocumentTable } from "../components/DocumentTable";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { t } from "../i18n";
@@ -11,10 +12,12 @@ import { getDb } from "../lib/db/connection";
 import { getSetting, setSetting, SETTING_KEYS } from "../lib/db/settings";
 import { listVersions } from "../lib/db/versions";
 import { todayIso } from "../lib/domain/dates";
-import { buildOverview, filterOverview, type OverviewItem } from "../lib/domain/overview";
+import { buildOverview, countByGroup, filterOverview, type OverviewItem, type StatusGroup } from "../lib/domain/overview";
 import { CATEGORIES, type Category, type DocumentClass, type DocumentVersion } from "../lib/domain/types";
 import { FILE_NOT_FOUND, openDocumentFile } from "../lib/files";
+import { refreshMenus } from "../lib/menus";
 import { sendTestNotification } from "../lib/notifications";
+import { EXPAND_TRANSITION, withViewTransition } from "../lib/viewTransition";
 
 type View = "grid" | "list";
 
@@ -41,12 +44,17 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
   const [view, setView] = useState<View>("grid");
   const [category, setCategory] = useState<Category | null>(null);
   const [query, setQuery] = useState("");
+  const [group, setGroup] = useState<StatusGroup | null>(null);
+  /** The enlarged card, by class (so it follows reloads) and the version it showed. */
+  const [expanded, setExpanded] = useState<{ classId: number; versionId: number } | null>(null);
+  const expandedFrom = useRef<HTMLElement | null>(null);
 
   const reload = useCallback(async () => {
     const db = await getDb();
     const [cls, versions] = await Promise.all([listClasses(db), listVersions(db)]);
     setClasses(cls);
     setItems(buildOverview(cls, versions, todayIso()));
+    void refreshMenus(); // the Dock badge and tray menu follow every load and change
   }, []);
 
   useEffect(() => {
@@ -92,8 +100,29 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
         const item = find(version);
         if (item) setDialog({ kind: "delete", item, version, isCurrent });
       },
+      onExpand: (item, versionId, from) => {
+        // The card carries the shared name in the "before" picture, the panel in the "after" one.
+        expandedFrom.current = from;
+        from.style.viewTransitionName = EXPAND_TRANSITION;
+        void withViewTransition(() => {
+          from.style.viewTransitionName = "";
+          setExpanded({ classId: item.documentClass.id, versionId });
+        });
+      },
     };
   }, [items]);
+
+  const closeExpanded = useCallback(() => {
+    const card = expandedFrom.current;
+    void withViewTransition(() => {
+      setExpanded(null);
+      if (card?.isConnected) card.style.viewTransitionName = EXPAND_TRANSITION;
+    }).then(() => {
+      if (card) card.style.viewTransitionName = "";
+    });
+  }, []);
+
+  const expandedItem = expanded ? items?.find((i) => i.documentClass.id === expanded.classId) : undefined;
 
   const afterChange = (warning?: string) => {
     setDialog(null);
@@ -101,7 +130,8 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
     reload().catch((err) => setError(String(err)));
   };
 
-  const visible = useMemo(() => (items ? filterOverview(items, { category, query }) : []), [items, category, query]);
+  const visible = useMemo(() => (items ? filterOverview(items, { category, query, group }) : []), [items, category, query, group]);
+  const counts = useMemo(() => countByGroup(items ?? []), [items]);
 
   const changeView = (next: View) => {
     setView(next);
@@ -205,6 +235,25 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
     <>
       {banner}
       {intro}
+      <div className="summary" role="group" aria-label={t.overview.title}>
+        {(["expired", "soon", "valid"] as const).map((g) => (
+          <button
+            key={g}
+            className={`summary-chip summary-${g}`}
+            aria-pressed={group === g}
+            disabled={counts[g] === 0}
+            onClick={() => setGroup(group === g ? null : g)}
+          >
+            <span className="summary-dot" />
+            {t.overview.summary[g](counts[g])}
+          </button>
+        ))}
+        {group && (
+          <button className="summary-clear" onClick={() => setGroup(null)}>
+            {t.overview.summary.showAll}
+          </button>
+        )}
+      </div>
       <div className="toolbar">
         <input
           type="search"
@@ -247,6 +296,9 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
         </div>
       ) : (
         <DocumentTable items={visible} handlers={handlers} focusVersionId={focusVersionId} />
+      )}
+      {expanded && expandedItem && (
+        <ExpandedDocument item={expandedItem} versionId={expanded.versionId} handlers={handlers} onClose={closeExpanded} />
       )}
       {dialogs}
     </>

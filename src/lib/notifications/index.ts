@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { isPermissionGranted, requestPermission, sendNotification } from "@tauri-apps/plugin-notification";
 import { t } from "../../i18n";
@@ -10,17 +9,11 @@ import { listVersions } from "../db/versions";
 import { formatDate, todayIso } from "../domain/dates";
 import { groupSentByVersion, planNotifications } from "../domain/notifications";
 import { buildOverview } from "../domain/overview";
+import { refreshMenus } from "../menus";
 
 /** Event names; must match src-tauri/src/lib.rs. */
 const EVENT_CHECK_NOW = "check-now";
 const EVENT_OPEN_DOCUMENT = "open-document";
-
-/** Sets the tray menu and the macOS app menu in the active language (see set_menu_texts in lib.rs). */
-export function applyMenuTexts(): void {
-  invoke("set_menu_texts", { texts: { tray: t.tray, appMenu: t.appMenu } }).catch((err) =>
-    console.error("Could not set menu texts", err),
-  );
-}
 
 export async function ensurePermission(): Promise<boolean> {
   if (await isPermissionGranted()) return true;
@@ -71,10 +64,14 @@ export async function sendTestNotification(): Promise<boolean> {
  */
 export function startNotificationService(onOpenDocument: (versionId: number) => void): () => void {
   const report = (err: unknown) => console.error("Expiry check failed", err);
-  applyMenuTexts();
+  void refreshMenus();
   void runExpiryCheck().catch(report);
   const stops = [
-    listen(EVENT_CHECK_NOW, () => void runExpiryCheck().catch(report)),
+    // Also the 6-hourly timer: days left change with the date, so refresh the menus and badge too.
+    listen(EVENT_CHECK_NOW, () => {
+      void refreshMenus();
+      void runExpiryCheck().catch(report);
+    }),
     listen<number>(EVENT_OPEN_DOCUMENT, (e) => onOpenDocument(e.payload)),
   ];
   return () => stops.forEach((p) => p.then((stop) => stop()));
