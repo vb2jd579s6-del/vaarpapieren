@@ -10,7 +10,7 @@ import { formatDate } from "../lib/domain/dates";
 import { InvalidExportError, type ExportManifest } from "../lib/transfer";
 import { applyImport, exportToFile, readImportFile } from "../lib/transferApp";
 import { authenticate, canUseLock } from "../lib/lock";
-import { appVersion, checkForUpdate, installUpdate } from "../lib/updates";
+import { appVersion, checkForUpdate, installUpdate, updateErrorKind } from "../lib/updates";
 import type { Update } from "@tauri-apps/plugin-updater";
 import { getDb } from "../lib/db/connection";
 import { getThresholds, setThresholds } from "../lib/db/settings";
@@ -106,7 +106,13 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
       setUpdateStatus({ kind: "info", text: found ? t.settings.updateAvailable(found.version) : t.settings.upToDate });
     } catch (err) {
       console.error("Update check failed", err);
-      setUpdateStatus({ kind: "error", text: t.settings.updateError });
+      const reason = {
+        offline: t.settings.updateOffline,
+        noPlatform: t.settings.updateNoPlatform,
+        noRelease: t.settings.updateNoRelease,
+        other: `${t.settings.updateError} ${t.common.error(String(err))}`,
+      }[updateErrorKind(err)];
+      setUpdateStatus({ kind: "error", text: reason });
     } finally {
       setUpdating(null);
     }

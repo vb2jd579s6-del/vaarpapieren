@@ -25,3 +25,14 @@ export async function installUpdate(update: Update, onProgress: (fraction: numbe
   });
   await relaunch();
 }
+
+export type UpdateErrorKind = "offline" | "noPlatform" | "noRelease" | "other";
+
+/** What went wrong, from the updater's error text, so the app can say why instead of guessing. */
+export function updateErrorKind(error: unknown): UpdateErrorKind {
+  const text = String(error).toLowerCase();
+  if (/platform .* (was )?not found|not found on the response/.test(text)) return "noPlatform";
+  if (/error sending request|dns|connect|timed out|timeout|network|offline|unreachable|no route/.test(text)) return "offline";
+  if (/valid release json|404|not found|deserializ|parse|invalid/.test(text)) return "noRelease";
+  return "other";
+}

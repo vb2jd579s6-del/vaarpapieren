@@ -135,7 +135,7 @@ In de app kies je **Instellingen → Over Vaarpapieren → Zoek naar updates**. 
    git tag v1.0.1
    git push origin main v1.0.1
    ```
-3. Na ongeveer 15 minuten staat de release online. Bestaande installaties vinden hem dan via "Zoek naar updates".
+3. Na ongeveer 20 minuten staat de release online. Bestaande installaties vinden hem dan via "Zoek naar updates". Tot alle platforms klaar zijn, blijft de release een concept dat de app niet ziet. Mislukt een build, dan blijft hij concept. Na een fix verwijder je het concept en de tag (`git push --delete origin vX.Y.Z`), en tag je opnieuw.
 
 **De updatesleutel (bewaar die goed!)**
 Updates worden ondertekend met `~/.tauri/vaarpapieren.key` en het wachtwoord in `~/.tauri/vaarpapieren.key.password`. Beide staan ook als secret in GitHub (`TAURI_SIGNING_PRIVATE_KEY` en `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`). De publieke helft staat in `tauri.conf.json`.

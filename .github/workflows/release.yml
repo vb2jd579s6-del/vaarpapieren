@@ -1,6 +1,10 @@
 # Builds Vaarpapieren for macOS (universal: Apple Silicon + Intel) and Windows when a version tag
 # such as v1.0.1 is pushed, and publishes them as a GitHub release together with latest.json,
 # which the app's "Check for updates" reads. Updates are signed with the updater key (secrets).
+#
+# The release stays a draft (invisible to the app) until every platform has been built and
+# uploaded; only then the last job publishes it. A half-finished release would give installed
+# apps a latest.json without their platform.
 name: Release
 
 on:
@@ -11,9 +15,26 @@ permissions:
   contents: write
 
 jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.draft.outputs.id }}
+    steps:
+      - id: draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          id=$(gh api "repos/${{ github.repository }}/releases" \
+            -f tag_name="${{ github.ref_name }}" \
+            -f name="Vaarpapieren ${{ github.ref_name }}" \
+            -f body="Zie de README voor installeren. Al geïnstalleerd? Instellingen → Zoek naar updates." \
+            -F draft=true --jq .id)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: create-release
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - platform: macos-latest
@@ -47,9 +68,15 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: Vaarpapieren ${{ github.ref_name }}
-          releaseBody: Zie de README voor installeren. Al geïnstalleerd? Instellingen → Zoek naar updates.
-          releaseDraft: false
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           args: ${{ matrix.args }}
+
+  publish:
+    needs: [create-release, build]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X PATCH "repos/${{ github.repository }}/releases/${{ needs.create-release.outputs.release_id }}" \
+            -F draft=false -f make_latest=true --jq '.html_url'
