@@ -33,7 +33,7 @@ gebruiker erom vraagt.
       Overzicht.
 
 ## 4. Export/import
-- [ ] Exportformaat versie 2 met `seaService` en de gekozen functie; versie 1 blijft importeerbaar.
+- [x] Exportformaat versie 2 met `seaService` en de gekozen functie; versie 1 blijft importeerbaar.
 
 ## 5. Afronden
 - [ ] Alle tests, build, README (functies per platform), committen. Niet pushen of uitbrengen
