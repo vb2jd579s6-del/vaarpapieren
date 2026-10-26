@@ -210,33 +210,3 @@ pub fn suppress_automatic_edit_items() {
     // Registration domain only: nothing is written to the user's preferences.
     unsafe { NSUserDefaults::standardUserDefaults().registerDefaults(&defaults) };
 }
-
-/// macOS adds "Start Dictation…" to the Edit menu on its own, again each time the menu is rebuilt
-/// (on a language switch), so it piled up. Turn that off for this app; dictation stays available
-/// through its keyboard shortcut.
-pub fn suppress_automatic_edit_items() {
-    use objc2_foundation::{NSNumber, NSUserDefaults};
-    let yes = NSNumber::new_bool(true);
-    let key = NSString::from_str("NSDisabledDictationMenuItem");
-    let values: [&AnyObject; 1] = [&yes];
-    let defaults = NSDictionary::<NSString, AnyObject>::from_slices(&[&*key], &values);
-    // Registration domain only: nothing is written to the user's preferences.
-    unsafe { NSUserDefaults::standardUserDefaults().registerDefaults(&defaults) };
-}
-
-/// DEBUG-TEMP: with VP_DEBUG_CONTINUITY set, log the Edit menu after start.
-pub fn debug_probe(window: WebviewWindow) {
-    if std::env::var_os("VP_DEBUG_CONTINUITY").is_none() {
-        return;
-    }
-    std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_secs(6));
-        let _ = window.run_on_main_thread(|| {
-            let mtm = MainThreadMarker::new().unwrap();
-            if let Some(edit) = NSApplication::sharedApplication(mtm).mainMenu().and_then(|m| m.itemAtIndex(1)).and_then(|i| i.submenu()) {
-                let titles: Vec<String> = (0..edit.numberOfItems()).filter_map(|k| edit.itemAtIndex(k)).map(|x| format!("{}({})", x.title(), x.isEnabled())).collect();
-                eprintln!("DEBUG edit: {titles:?}");
-            }
-        });
-    });
-}
