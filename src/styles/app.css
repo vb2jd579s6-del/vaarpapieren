@@ -11,9 +11,8 @@
   user-select: none;
   animation: fade-in 400ms ease-out;
 }
-.splash img { width: min(420px, 80vw); height: auto; }
-.splash h1 { margin: 0; font-size: 22px; font-weight: 400; letter-spacing: 0.28em; text-transform: uppercase; }
-.splash .hint { position: absolute; bottom: 24px; font-size: 12px; opacity: 0.5; }
+.splash img { width: min(150px, 40vw); height: auto; filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.35)); animation: splash-in 600ms ease-out; }
+@keyframes splash-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
 
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
@@ -264,3 +263,13 @@ select.input {
 .btn:has(.btn-icon) { display: inline-flex; align-items: center; gap: 6px; }
 .btn-icon { width: 16px; height: 16px; flex: none; }
 .file-picker { flex-wrap: wrap; }
+
+/* Activation */
+.activation { height: 100%; display: flex; align-items: center; justify-content: center; background: var(--splash-bg); padding: 24px; }
+.activation-card { width: min(400px, 100%); background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 28px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+.activation-card img { width: 64px; align-self: center; }
+.activation-card h1 { margin: 0; font-size: 20px; }
+.activation-card p { margin: 0; }
+.activation-card .field { text-align: left; }
+.version-line { margin: 0; }
+.fieldset .notice { margin: 0; }

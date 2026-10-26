@@ -3,6 +3,15 @@ import type { Messages } from "./nl";
 /** All UI text (French). Must have the same keys as nl.ts. */
 export const fr: Messages = {
   app: { name: "Vaarpapieren", splashHint: "Cliquez pour continuer" },
+  activation: {
+    title: "Activer Vaarpapieren",
+    intro: "Saisissez le code d'activation que vous avez reçu. Une seule fois suffit : l'app reste activée après les mises à jour.",
+    codeLabel: "Code d'activation",
+    submit: "Activer",
+    checking: "Vérification…",
+    wrong: "Ce code n'est pas correct.",
+    error: "L'activation a échoué.",
+  },
   tabs: { overview: "Aperçu", add: "Ajouter", settings: "Réglages" },
   overview: {
     title: "Aperçu",
@@ -106,6 +115,17 @@ export const fr: Messages = {
     autostart: "Démarrer automatiquement à l'ouverture de session",
     autostartHint: "Vaarpapieren démarre alors en arrière-plan dans la barre des menus/zone de notification, pour que les notifications arrivent même si vous n'ouvrez pas l'app.",
     backgroundHint: "Fermer la fenêtre laisse l'app tourner en arrière-plan. Pour la quitter, utilisez l'icône de la barre des menus/zone de notification.",
+    aboutSection: "À propos de Vaarpapieren",
+    version: "Version",
+    checkUpdates: "Rechercher des mises à jour",
+    checkingUpdates: "Recherche…",
+    upToDate: "Vous avez la dernière version.",
+    updateAvailable: (version: string) => `La version ${version} est disponible.`,
+    install: "Installer et redémarrer",
+    installing: "Mise à jour…",
+    updateError: "La recherche de mises à jour a échoué. Êtes-vous connecté à Internet ?",
+    installError: "La mise à jour a échoué.",
+    updatesHint: "L'app ne recherche des mises à jour que lorsque vous appuyez sur ce bouton. Vos documents sont conservés lors d'une mise à jour.",
     dataSection: "Données",
     dataFolder: "Dossier de stockage",
     error: "Une erreur s'est produite.",

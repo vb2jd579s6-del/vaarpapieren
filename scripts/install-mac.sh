@@ -11,6 +11,13 @@ SRC="src-tauri/target/release/bundle/macos/$APP_NAME"
 DEST="/Applications/$APP_NAME"
 RUNNING="$APP_NAME/Contents/MacOS/vaarpapieren"
 
+# The updater artifacts are signed; the key lives outside the project (see README → Releases).
+KEY="$HOME/.tauri/vaarpapieren.key"
+if [ -f "$KEY" ]; then
+  export TAURI_SIGNING_PRIVATE_KEY="$(cat "$KEY")"
+  export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$(cat "$KEY.password" 2>/dev/null || true)"
+fi
+
 npm run tauri build -- --bundles app
 
 # A running copy has to quit before it can be replaced.

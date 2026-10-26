@@ -3,6 +3,15 @@ import type { Messages } from "./nl";
 /** All UI text (German). Must have the same keys as nl.ts. */
 export const de: Messages = {
   app: { name: "Vaarpapieren", splashHint: "Klicken zum Fortfahren" },
+  activation: {
+    title: "Vaarpapieren aktivieren",
+    intro: "Gib den Aktivierungscode ein, den du erhalten hast. Das ist nur einmal nötig: Nach Updates bleibt die App aktiviert.",
+    codeLabel: "Aktivierungscode",
+    submit: "Aktivieren",
+    checking: "Prüfen …",
+    wrong: "Dieser Code stimmt nicht.",
+    error: "Aktivierung fehlgeschlagen.",
+  },
   tabs: { overview: "Übersicht", add: "Hinzufügen", settings: "Einstellungen" },
   overview: {
     title: "Übersicht",
@@ -106,6 +115,17 @@ export const de: Messages = {
     autostart: "Bei der Anmeldung automatisch starten",
     autostartHint: "Vaarpapieren startet dann im Hintergrund in der Menüleiste/im Infobereich, sodass Benachrichtigungen auch kommen, wenn du die App nicht selbst öffnest.",
     backgroundHint: "Wenn du das Fenster schließt, läuft die App im Hintergrund weiter. Beenden kannst du sie über das Symbol in der Menüleiste/im Infobereich.",
+    aboutSection: "Über Vaarpapieren",
+    version: "Version",
+    checkUpdates: "Nach Updates suchen",
+    checkingUpdates: "Suchen …",
+    upToDate: "Du hast die neueste Version.",
+    updateAvailable: (version: string) => `Version ${version} ist verfügbar.`,
+    install: "Installieren und neu starten",
+    installing: "Aktualisieren …",
+    updateError: "Die Suche nach Updates ist fehlgeschlagen. Bist du mit dem Internet verbunden?",
+    installError: "Aktualisierung fehlgeschlagen.",
+    updatesHint: "Die App sucht nur nach Updates, wenn du diese Taste drückst. Deine Dokumente bleiben bei einem Update erhalten.",
     dataSection: "Daten",
     dataFolder: "Speicherordner",
     error: "Etwas ist schiefgelaufen.",

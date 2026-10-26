@@ -1,6 +1,15 @@
 /** All UI text (Dutch). To add a language: copy en.ts, translate, and register it in index.ts. */
 export const nl = {
   app: { name: "Vaarpapieren", splashHint: "Klik om verder te gaan" },
+  activation: {
+    title: "Vaarpapieren activeren",
+    intro: "Voer de activatiecode in die je hebt gekregen. Dit hoeft maar één keer: na updates blijft de app geactiveerd.",
+    codeLabel: "Activatiecode",
+    submit: "Activeren",
+    checking: "Controleren…",
+    wrong: "Deze code klopt niet.",
+    error: "Activeren is mislukt.",
+  },
   tabs: { overview: "Overzicht", add: "Toevoegen", settings: "Instellingen" },
   overview: {
     title: "Overzicht",
@@ -104,6 +113,17 @@ export const nl = {
     autostart: "Automatisch starten bij inloggen",
     autostartHint: "Vaarpapieren start dan op de achtergrond in de menubalk/het systeemvak, zodat meldingen ook komen als je de app niet zelf opent.",
     backgroundHint: "Het venster sluiten laat de app op de achtergrond draaien. Afsluiten doe je via het icoon in de menubalk/het systeemvak.",
+    aboutSection: "Over Vaarpapieren",
+    version: "Versie",
+    checkUpdates: "Zoek naar updates",
+    checkingUpdates: "Zoeken…",
+    upToDate: "Je hebt de nieuwste versie.",
+    updateAvailable: (version: string) => `Versie ${version} is beschikbaar.`,
+    install: "Installeren en herstarten",
+    installing: "Bijwerken…",
+    updateError: "Zoeken naar updates is mislukt. Ben je verbonden met internet?",
+    installError: "Bijwerken is mislukt.",
+    updatesHint: "De app zoekt alleen naar updates als je op deze knop drukt. Je documenten blijven bij een update gewoon staan.",
     dataSection: "Gegevens",
     dataFolder: "Opslagmap",
     error: "Er ging iets mis.",

@@ -4,6 +4,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { LANGUAGE_NAMES, LANGUAGES, t, type Language } from "../i18n";
 import { TABS_POSITIONS, type TabsPosition } from "../lib/layout";
+import { appVersion, checkForUpdate, installUpdate } from "../lib/updates";
+import type { Update } from "@tauri-apps/plugin-updater";
 import { getDb } from "../lib/db/connection";
 import { getThresholds, setThresholds } from "../lib/db/settings";
 import { DEFAULT_THRESHOLDS, normalizeThresholds } from "../lib/domain/thresholds";
@@ -31,6 +33,11 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
   const [dataDir, setDataDir] = useState("");
   const [status, setStatus] = useState<Status | null>(null);
   const [busy, setBusy] = useState(false);
+  const [version, setVersion] = useState("");
+  const [update, setUpdate] = useState<Update | null>(null);
+  const [updateStatus, setUpdateStatus] = useState<Status | null>(null);
+  const [updating, setUpdating] = useState<"checking" | "installing" | null>(null);
+  const [progress, setProgress] = useState<number | null>(null);
 
   const fail = (err: unknown) => setStatus({ kind: "error", text: `${t.settings.error} ${t.common.error(String(err))}` });
 
@@ -38,6 +45,7 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
     getDb().then(getThresholds).then(setThresholdState).catch(fail);
     isEnabled().then(setAutostart).catch(fail);
     appDataDir().then(setDataDir).catch(() => {});
+    appVersion().then(setVersion).catch(() => {});
   }, []);
 
   const save = (next: number[]) => {
@@ -69,6 +77,34 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
       setAutostart(await isEnabled());
     } catch (err) {
       fail(err);
+    }
+  };
+
+  const searchUpdate = async () => {
+    setUpdating("checking");
+    setUpdateStatus(null);
+    setUpdate(null);
+    try {
+      const found = await checkForUpdate();
+      setUpdate(found);
+      setUpdateStatus({ kind: "info", text: found ? t.settings.updateAvailable(found.version) : t.settings.upToDate });
+    } catch (err) {
+      console.error("Update check failed", err);
+      setUpdateStatus({ kind: "error", text: t.settings.updateError });
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const applyUpdate = async () => {
+    if (!update) return;
+    setUpdating("installing");
+    setProgress(null);
+    try {
+      await installUpdate(update, setProgress);
+    } catch (err) {
+      setUpdateStatus({ kind: "error", text: `${t.settings.installError} ${t.common.error(String(err))}` });
+      setUpdating(null);
     }
   };
 
@@ -206,6 +242,32 @@ export function Settings({ language, onLanguageChange, tabsPosition, onTabsPosit
         </label>
         <p className="field-hint">{t.settings.autostartHint}</p>
         <p className="field-hint">{t.settings.backgroundHint}</p>
+      </section>
+
+      <section className="fieldset">
+        <h3 className="section-title">{t.settings.aboutSection}</h3>
+        {version && (
+          <p className="version-line">
+            {t.settings.version} <strong>{version}</strong>
+          </p>
+        )}
+        <div className="actions">
+          <button className="btn" onClick={searchUpdate} disabled={updating !== null}>
+            {updating === "checking" ? t.settings.checkingUpdates : t.settings.checkUpdates}
+          </button>
+          {update && (
+            <button className="btn btn-primary" onClick={applyUpdate} disabled={updating !== null}>
+              {updating === "installing"
+                ? progress === null
+                  ? t.settings.installing
+                  : `${t.settings.installing} ${Math.round(progress * 100)}%`
+                : t.settings.install}
+            </button>
+          )}
+        </div>
+        {updateStatus && <div className={`notice${updateStatus.kind === "error" ? " notice-error" : ""}`}>{updateStatus.text}</div>}
+        {update?.body && <p className="field-hint notes">{update.body}</p>}
+        <p className="field-hint">{t.settings.updatesHint}</p>
       </section>
 
       {dataDir && (

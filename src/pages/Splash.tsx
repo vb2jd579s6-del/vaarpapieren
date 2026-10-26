@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import logo from "../assets/tharsis-logo.png";
+import shield from "../assets/shield.svg";
 import { t } from "../i18n";
 
 const SPLASH_MS = 2000;
 
+/** Start screen: only the Tharsis shield, then on to the app after 2 s or a click. */
 export function Splash({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const timer = window.setTimeout(onDone, SPLASH_MS);
@@ -12,9 +13,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="splash" onClick={onDone} role="button" aria-label={t.app.splashHint}>
-      <img src={logo} alt="Tharsis Ship Management" />
-      <h1>{t.app.name}</h1>
-      <span className="hint">{t.app.splashHint}</span>
+      <img src={shield} alt={t.app.name} />
     </div>
   );
 }

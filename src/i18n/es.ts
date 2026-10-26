@@ -3,6 +3,15 @@ import type { Messages } from "./nl";
 /** All UI text (Spanish). Must have the same keys as nl.ts. */
 export const es: Messages = {
   app: { name: "Vaarpapieren", splashHint: "Haz clic para continuar" },
+  activation: {
+    title: "Activar Vaarpapieren",
+    intro: "Introduce el código de activación que te han dado. Solo hace falta una vez: la app sigue activada después de las actualizaciones.",
+    codeLabel: "Código de activación",
+    submit: "Activar",
+    checking: "Comprobando…",
+    wrong: "Este código no es correcto.",
+    error: "No se pudo activar.",
+  },
   tabs: { overview: "Resumen", add: "Añadir", settings: "Ajustes" },
   overview: {
     title: "Resumen",
@@ -106,6 +115,17 @@ export const es: Messages = {
     autostart: "Iniciar automáticamente al iniciar sesión",
     autostartHint: "Vaarpapieren se inicia entonces en segundo plano en la barra de menús/bandeja del sistema, para que las notificaciones lleguen aunque no abras la app.",
     backgroundHint: "Al cerrar la ventana, la app sigue funcionando en segundo plano. Para salir, usa el icono de la barra de menús/bandeja del sistema.",
+    aboutSection: "Acerca de Vaarpapieren",
+    version: "Versión",
+    checkUpdates: "Buscar actualizaciones",
+    checkingUpdates: "Buscando…",
+    upToDate: "Tienes la versión más reciente.",
+    updateAvailable: (version: string) => `La versión ${version} está disponible.`,
+    install: "Instalar y reiniciar",
+    installing: "Actualizando…",
+    updateError: "No se pudieron buscar actualizaciones. ¿Estás conectado a internet?",
+    installError: "No se pudo actualizar.",
+    updatesHint: "La app solo busca actualizaciones cuando pulsas este botón. Tus documentos se conservan durante una actualización.",
     dataSection: "Datos",
     dataFolder: "Carpeta de datos",
     error: "Algo salió mal.",

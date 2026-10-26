@@ -6,6 +6,7 @@ import { changeLanguage } from "./lib/language";
 import { saveTabsPosition, type TabsPosition } from "./lib/layout";
 import { listenForIphoneImports } from "./lib/files";
 import { startNotificationService } from "./lib/notifications";
+import { Activation } from "./pages/Activation";
 import { Add } from "./pages/Add";
 import { Overview } from "./pages/Overview";
 import { Settings } from "./pages/Settings";
@@ -25,12 +26,18 @@ function GearIcon() {
 }
 
 
-export default function App({ initialTabsPosition }: { initialTabsPosition: TabsPosition }) {
+interface AppProps {
+  initialTabsPosition: TabsPosition;
+  initiallyActivated: boolean;
+}
+
+export default function App({ initialTabsPosition, initiallyActivated }: AppProps) {
   const [showSplash, setShowSplash] = useState(true);
   const [page, setPage] = useState<Page>("overview");
   /** Mirrors the active language so a switch re-renders everything with the new texts. */
   const [lang, setLang] = useState<Language>(language);
   const [tabsPosition, setTabsPosition] = useState(initialTabsPosition);
+  const [activated, setActivated] = useState(initiallyActivated);
   /** A scan that arrived while no Add page was open; the nonce remounts Add so it takes it over. */
   const [pendingScan, setPendingScan] = useState<{ path: string; nonce: number } | null>(null);
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
@@ -78,6 +85,7 @@ export default function App({ initialTabsPosition }: { initialTabsPosition: Tabs
   };
 
   if (showSplash) return <Splash onDone={endSplash} />;
+  if (!activated) return <Activation onActivated={() => setActivated(true)} />;
 
   const tabs: TabItem<"overview" | "add">[] = [
     { id: "overview", label: t.tabs.overview },

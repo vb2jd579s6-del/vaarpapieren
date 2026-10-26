@@ -1,8 +1,8 @@
 [package]
 name = "vaarpapieren"
-version = "0.1.0"
+version = "1.0.0"
 description = "Vaarpapieren - maritieme documenten en certificaten"
-authors = ["you"]
+authors = []
 edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -39,6 +39,8 @@ strip = true
 
 [target.'cfg(any(target_os = "macos", windows, target_os = "linux"))'.dependencies]
 tauri-plugin-autostart = "2.7.0"
+tauri-plugin-process = "2.4.0"
+tauri-plugin-updater = "2.14.0"
 
 # Continuity Camera (src/continuity.rs); the same versions Tauri already uses.
 [target.'cfg(target_os = "macos")'.dependencies]

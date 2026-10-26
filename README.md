@@ -119,6 +119,42 @@ Een Windows-build maak je op een Windows-pc. Kruiselings bouwen vanaf macOS word
 - **macOS:** de eerste keer opent de app niet met dubbelklikken. Gebruik rechtsklik → **Open** en bevestig, of ga naar Systeeminstellingen → Privacy en beveiliging → **Toch openen**.
 - **Windows:** SmartScreen toont "Onbekende uitgever". Kies **Meer informatie** → **Toch uitvoeren**.
 
+## Releases en updates voor anderen
+
+Releases staan op GitHub. Bij een tag als `v1.0.1` bouwt de workflow `.github/workflows/release.yml` deze bestanden en zet ze bij die release:
+- een universele Mac-versie (Apple Silicon en Intel);
+- een Windows-installer;
+- `latest.json`.
+
+In de app kies je **Instellingen → Over Vaarpapieren → Zoek naar updates**. De app zoekt alleen als je daarop drukt.
+
+**Een nieuwe versie uitbrengen**
+1. Verhoog de versie in `package.json`, `src-tauri/tauri.conf.json` en `src-tauri/Cargo.toml`, bijvoorbeeld naar `1.0.1`.
+2. Commit, en push de tag:
+   ```bash
+   git tag v1.0.1
+   git push origin main v1.0.1
+   ```
+3. Na ongeveer 15 minuten staat de release online. Bestaande installaties vinden hem dan via "Zoek naar updates".
+
+**De updatesleutel (bewaar die goed!)**
+Updates worden ondertekend met `~/.tauri/vaarpapieren.key` en het wachtwoord in `~/.tauri/vaarpapieren.key.password`. Beide staan ook als secret in GitHub (`TAURI_SIGNING_PRIVATE_KEY` en `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`). De publieke helft staat in `tauri.conf.json`.
+
+Ben je de sleutel kwijt, dan kunnen bestaande installaties geen updates meer controleren. Iedereen moet dan opnieuw handmatig installeren. Maak er dus een back-up van, bijvoorbeeld in je wachtwoordmanager. Zet de sleutel nooit in de repo.
+
+**Activatiecode**
+Bij de eerste start vraagt de app één keer om een activatiecode. Na updates hoeft dat niet opnieuw, want de activatie staat in de database. In de broncode staat alleen een SHA-256-hash (`src/lib/activation.ts`), niet de code zelf. Zo zet je een nieuwe code:
+```bash
+printf '%s' 'vaarpapieren-activation-v1:JOUW-NIEUWE-CODE' | shasum -a 256
+```
+Zet de uitkomst in `ACTIVATION_HASH`. Wie al geactiveerd is, blijft dat.
+
+Dit is een drempel, geen beveiliging. De broncode is openbaar, dus iemand met kennis kan de controle eruit halen en de app zelf bouwen.
+
+**Eerste installatie voor iemand anders** (de app is niet ondertekend bij Apple of Microsoft)
+- **macOS:** download de `.dmg` of `.app.tar.gz` bij de release en sleep de app naar Apps. Bij de eerste keer openen meldt macOS dat de app niet gecontroleerd kan worden. Ga dan naar Systeeminstellingen → Privacy en beveiliging → **Toch openen**. Daarna gaan updates via de app.
+- **Windows:** download de `-setup.exe`. SmartScreen toont "Onbekende uitgever". Kies **Meer informatie → Toch uitvoeren**.
+
 ## Meldingen testen
 
 Zo werken meldingen:

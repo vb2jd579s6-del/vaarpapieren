@@ -6,6 +6,7 @@ export const SETTING_KEYS = {
   overviewView: "overview_view",
   language: "language",
   tabsPosition: "tabs_position",
+  activated: "activated",
   thresholds: "notification_thresholds",
   /** Set once the first-start notice about notifications was dismissed. */
   notificationsIntroDone: "notifications_intro_done",

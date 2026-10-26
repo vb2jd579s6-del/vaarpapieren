@@ -3,6 +3,15 @@ import type { Messages } from "./nl";
 /** All UI text (English). Must have the same keys as nl.ts. */
 export const en: Messages = {
   app: { name: "Vaarpapieren", splashHint: "Click to continue" },
+  activation: {
+    title: "Activate Vaarpapieren",
+    intro: "Enter the activation code you were given. You only need to do this once: the app stays activated after updates.",
+    codeLabel: "Activation code",
+    submit: "Activate",
+    checking: "Checking…",
+    wrong: "This code is not correct.",
+    error: "Activation failed.",
+  },
   tabs: { overview: "Overview", add: "Add", settings: "Settings" },
   overview: {
     title: "Overview",
@@ -106,6 +115,17 @@ export const en: Messages = {
     autostart: "Start automatically at login",
     autostartHint: "Vaarpapieren then starts in the background in the menu bar/system tray, so notifications arrive even when you don't open the app yourself.",
     backgroundHint: "Closing the window keeps the app running in the background. Quit it from the icon in the menu bar/system tray.",
+    aboutSection: "About Vaarpapieren",
+    version: "Version",
+    checkUpdates: "Check for updates",
+    checkingUpdates: "Checking…",
+    upToDate: "You have the latest version.",
+    updateAvailable: (version: string) => `Version ${version} is available.`,
+    install: "Install and restart",
+    installing: "Updating…",
+    updateError: "Checking for updates failed. Are you connected to the internet?",
+    installError: "Updating failed.",
+    updatesHint: "The app only looks for updates when you press this button. Your documents stay as they are during an update.",
     dataSection: "Data",
     dataFolder: "Storage folder",
     error: "Something went wrong.",

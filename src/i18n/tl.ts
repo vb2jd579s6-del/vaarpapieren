@@ -3,6 +3,15 @@ import type { Messages } from "./nl";
 /** All UI text (Tagalog / Filipino). Must have the same keys as nl.ts. */
 export const tl: Messages = {
   app: { name: "Vaarpapieren", splashHint: "I-click para magpatuloy" },
+  activation: {
+    title: "I-activate ang Vaarpapieren",
+    intro: "Ilagay ang activation code na ibinigay sa iyo. Isang beses lang ito kailangan: mananatiling activated ang app pagkatapos ng mga update.",
+    codeLabel: "Activation code",
+    submit: "I-activate",
+    checking: "Sinusuri…",
+    wrong: "Hindi tama ang code na ito.",
+    error: "Hindi na-activate.",
+  },
   tabs: { overview: "Pangkalahatang-tanaw", add: "Magdagdag", settings: "Mga Setting" },
   overview: {
     title: "Pangkalahatang-tanaw",
@@ -106,6 +115,17 @@ export const tl: Messages = {
     autostart: "Awtomatikong magsimula sa pag-log in",
     autostartHint: "Magsisimula ang Vaarpapieren sa background sa menu bar/system tray, para dumating pa rin ang mga notification kahit hindi mo binubuksan ang app.",
     backgroundHint: "Kapag isinara ang window, patuloy na tatakbo ang app sa background. Para lumabas, gamitin ang icon sa menu bar/system tray.",
+    aboutSection: "Tungkol sa Vaarpapieren",
+    version: "Bersyon",
+    checkUpdates: "Maghanap ng update",
+    checkingUpdates: "Naghahanap…",
+    upToDate: "Nasa pinakabagong bersyon ka na.",
+    updateAvailable: (version: string) => `Available na ang bersyon ${version}.`,
+    install: "I-install at i-restart",
+    installing: "Nag-a-update…",
+    updateError: "Hindi nakapaghanap ng update. Nakakonekta ka ba sa internet?",
+    installError: "Hindi na-update.",
+    updatesHint: "Naghahanap lang ng update ang app kapag pinindot mo ang button na ito. Mananatili ang iyong mga dokumento sa isang update.",
     dataSection: "Data",
     dataFolder: "Folder ng data",
     error: "May nangyaring mali.",
