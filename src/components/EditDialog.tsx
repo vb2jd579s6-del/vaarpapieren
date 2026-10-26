@@ -6,6 +6,7 @@ import { CATEGORIES, type Category, type DocumentClass, type DocumentVersion } f
 import { updateDocument, type FileChange } from "../lib/documents";
 import { fileName, pickDocumentFile } from "../lib/files";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { IphoneImportButton } from "./IphoneImportButton";
 import { ERROR_FIELD, errorText, Field, NotesInput, VersionInputs } from "./FormFields";
 import { Modal } from "./Modal";
 
@@ -127,6 +128,7 @@ export function EditDialog({ documentClass, version, isCurrent, versionCount, ot
             <button type="button" className="btn" onClick={chooseFile}>
               {currentFileName || fileChange.kind === "replace" ? t.edit.replaceFile : t.add.chooseFile}
             </button>
+            <IphoneImportButton onFile={(source) => setFileChange({ kind: "replace", source })} onError={(e) => setSaveError(String(e))} />
             {fileChange.kind === "keep" && currentFileName && (
               <button type="button" className="btn" onClick={() => setFileChange({ kind: "remove" })}>
                 {t.edit.removeFile}

@@ -162,6 +162,16 @@ Je kunt ook de vervaldatum van het testdocument aanpassen.
    - macOS: zichtbaar onder Systeeminstellingen → Algemeen → **Inloggen**.
    - In dev-modus registreert autostart het dev-programma. Zet het na het testen weer uit, en test autostart met een gebouwde of geïnstalleerde app.
 
+## Importeren vanaf iPhone (macOS)
+
+Onder **Toevoegen**, en bij **Bewerken** om een bestand te vervangen, staat de knop **Importeer vanaf iPhone…**. Dat is dezelfde functie als in het contextmenu van het bureaublad (Continuity Camera). Kies je iPhone en daarna **Scan documenten** of **Maak foto**. Het resultaat komt binnen als gekozen bestand: een scan als PDF, een foto als JPG of PNG. Daarna sla je op zoals gewoonlijk.
+
+Voorwaarden van Apple:
+- iPhone en Mac zijn ingelogd met dezelfde Apple Account.
+- Wifi en Bluetooth staan op beide toestellen aan.
+
+Staat je iPhone niet in het menu, controleer die twee dingen dan eerst. Technisch zit het in `src-tauri/src/continuity.rs`. Op Windows bestaat deze functie niet, dus daar is de knop verborgen.
+
 ## Bekende beperkingen
 
 - De 6-uurs-controle draait zolang de app draait, ook met een verborgen venster. Tijd waarin de computer slaapt telt niet mee. Na het ontwaken kan het dus tot 6 uur wakkere tijd duren voordat de volgende automatische controle komt. Een herstart of **Nu controleren** controleert direct.

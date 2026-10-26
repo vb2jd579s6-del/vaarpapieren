@@ -42,6 +42,7 @@ export const de: Messages = {
     file: "Datei",
     fileHint: "PDF, JPG oder PNG. Eine Kopie wird in der App gespeichert; das Original bleibt, wo es ist.",
     chooseFile: "Datei auswählen…",
+    importFromIphone: "Vom iPhone importieren …",
     fileFilter: "Dokumente",
     removeFile: "Datei entfernen",
     noFile: "Keine Datei ausgewählt",
@@ -80,6 +81,9 @@ export const de: Messages = {
   },
   settings: {
     title: "Einstellungen",
+    layoutSection: "Darstellung",
+    tabsPosition: "Position der Reiter",
+    positions: { left: "Links", center: "Mitte", right: "Rechts" },
     languageSection: "Sprache",
     languageHint: "Die Sprache der App, des Menüs in der Menüleiste/im Infobereich und der Benachrichtigungen.",
     notificationsSection: "Benachrichtigungen",

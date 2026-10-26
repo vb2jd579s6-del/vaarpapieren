@@ -19,15 +19,21 @@
 
 .shell { height: 100%; display: flex; flex-direction: column; }
 
+/* Three columns so the tabs can sit left, centred on the window, or right; the gear is always far right. */
 .topbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   padding: 10px 16px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
-.topbar-spacer { flex: 1; }
+.topbar .settings-btn { grid-column: 3; grid-row: 1; justify-self: end; }
+.topbar .tabs { grid-row: 1; }
+.topbar.tabs-left .tabs { grid-column: 1; justify-self: start; }
+.topbar.tabs-center .tabs { grid-column: 2; }
+.topbar.tabs-right .tabs { grid-column: 3; justify-self: end; margin-right: 54px; }
 
 /* Tabs: a rounded pill bar, the active tab a raised pill */
 .tabs {
@@ -254,3 +260,7 @@ select.input {
   }
 }
 .language-select { align-self: flex-start; min-width: 240px; border-radius: var(--radius-pill); padding-left: 16px; }
+
+.btn:has(.btn-icon) { display: inline-flex; align-items: center; gap: 6px; }
+.btn-icon { width: 16px; height: 16px; flex: none; }
+.file-picker { flex-wrap: wrap; }

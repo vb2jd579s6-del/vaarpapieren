@@ -1,7 +1,9 @@
 import { appDataDir } from "@tauri-apps/api/path";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { useEffect, useState, type FormEvent } from "react";
+import { SegmentedControl } from "../components/SegmentedControl";
 import { LANGUAGE_NAMES, LANGUAGES, t, type Language } from "../i18n";
+import { TABS_POSITIONS, type TabsPosition } from "../lib/layout";
 import { getDb } from "../lib/db/connection";
 import { getThresholds, setThresholds } from "../lib/db/settings";
 import { DEFAULT_THRESHOLDS, normalizeThresholds } from "../lib/domain/thresholds";
@@ -14,7 +16,14 @@ interface Status {
   text: string;
 }
 
-export function Settings({ language, onLanguageChange }: { language: Language; onLanguageChange: (lang: Language) => void }) {
+interface SettingsProps {
+  language: Language;
+  onLanguageChange: (lang: Language) => void;
+  tabsPosition: TabsPosition;
+  onTabsPositionChange: (position: TabsPosition) => void;
+}
+
+export function Settings({ language, onLanguageChange, tabsPosition, onTabsPositionChange }: SettingsProps) {
   const [thresholds, setThresholdState] = useState<number[] | null>(null);
   const [newDays, setNewDays] = useState("");
   const [inputError, setInputError] = useState(false);
@@ -95,6 +104,19 @@ export function Settings({ language, onLanguageChange }: { language: Language; o
           ))}
         </select>
         <p className="field-hint">{t.settings.languageHint}</p>
+      </section>
+
+      <section className="fieldset">
+        <h3 className="section-title">{t.settings.layoutSection}</h3>
+        <div className="field">
+          <span className="field-label">{t.settings.tabsPosition}</span>
+          <SegmentedControl
+            label={t.settings.tabsPosition}
+            value={tabsPosition}
+            onChange={onTabsPositionChange}
+            segments={TABS_POSITIONS.map((id) => ({ id, label: t.settings.positions[id] }))}
+          />
+        </div>
       </section>
 
       <section className="fieldset">

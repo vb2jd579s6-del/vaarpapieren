@@ -42,6 +42,7 @@ export const es: Messages = {
     file: "Archivo",
     fileHint: "PDF, JPG o PNG. Se guarda una copia en la app; el original se queda donde está.",
     chooseFile: "Elegir archivo…",
+    importFromIphone: "Importar desde el iPhone…",
     fileFilter: "Documentos",
     removeFile: "Quitar archivo",
     noFile: "Ningún archivo elegido",
@@ -80,6 +81,9 @@ export const es: Messages = {
   },
   settings: {
     title: "Ajustes",
+    layoutSection: "Apariencia",
+    tabsPosition: "Posición de las pestañas",
+    positions: { left: "Izquierda", center: "Centro", right: "Derecha" },
     languageSection: "Idioma",
     languageHint: "El idioma de la app, del menú en la barra de menús/bandeja del sistema y de las notificaciones.",
     notificationsSection: "Notificaciones",

@@ -40,6 +40,7 @@ export const nl = {
     file: "Bestand",
     fileHint: "PDF, JPG of PNG. Er wordt een kopie bewaard in de app; het origineel blijft staan.",
     chooseFile: "Bestand kiezen…",
+    importFromIphone: "Importeer vanaf iPhone…",
     fileFilter: "Documenten",
     removeFile: "Bestand weghalen",
     noFile: "Geen bestand gekozen",
@@ -78,6 +79,9 @@ export const nl = {
   },
   settings: {
     title: "Instellingen",
+    layoutSection: "Weergave",
+    tabsPosition: "Plaats van de tabbladen",
+    positions: { left: "Links", center: "Midden", right: "Rechts" },
     languageSection: "Taal",
     languageHint: "De taal van de app, het menu in de menubalk/het systeemvak en de meldingen.",
     notificationsSection: "Meldingen",

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Tabs, type TabItem } from "./components/Tabs";
 import { language, t, type Language } from "./i18n";
 import { changeLanguage } from "./lib/language";
+import { saveTabsPosition, type TabsPosition } from "./lib/layout";
 import { startNotificationService } from "./lib/notifications";
 import { Add } from "./pages/Add";
 import { Overview } from "./pages/Overview";
@@ -23,11 +24,12 @@ function GearIcon() {
 }
 
 
-export default function App() {
+export default function App({ initialTabsPosition }: { initialTabsPosition: TabsPosition }) {
   const [showSplash, setShowSplash] = useState(true);
   const [page, setPage] = useState<Page>("overview");
   /** Mirrors the active language so a switch re-renders everything with the new texts. */
   const [lang, setLang] = useState<Language>(language);
+  const [tabsPosition, setTabsPosition] = useState(initialTabsPosition);
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
   const [focus, setFocus] = useState<{ versionId: number; nonce: number } | null>(null);
   const endSplash = useCallback(() => setShowSplash(false), []);
@@ -56,6 +58,11 @@ export default function App() {
     setLang(next);
   };
 
+  const moveTabs = (next: TabsPosition) => {
+    setTabsPosition(next);
+    saveTabsPosition(next).catch((err) => console.error("Could not save the tabs position", err));
+  };
+
   if (showSplash) return <Splash onDone={endSplash} />;
 
   const tabs: TabItem<"overview" | "add">[] = [
@@ -65,9 +72,8 @@ export default function App() {
 
   return (
     <div className="shell">
-      <header className="topbar">
+      <header className={`topbar tabs-${tabsPosition}`}>
         <Tabs items={tabs} active={page === "settings" ? null : page} onChange={setPage} />
-        <span className="topbar-spacer" />
         <button
           className="icon-btn settings-btn"
           title={t.tabs.settings}
@@ -81,7 +87,9 @@ export default function App() {
       <main className="content">
         {page === "overview" && <Overview key={focus?.nonce} focusVersionId={focus?.versionId} onAdd={() => setPage("add")} />}
         {page === "add" && <Add onSaved={() => setPage("overview")} />}
-        {page === "settings" && <Settings language={lang} onLanguageChange={switchLanguage} />}
+        {page === "settings" && (
+          <Settings language={lang} onLanguageChange={switchLanguage} tabsPosition={tabsPosition} onTabsPositionChange={moveTabs} />
+        )}
       </main>
     </div>
   );

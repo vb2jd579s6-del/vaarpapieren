@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 
 export const DOCUMENT_EXTENSIONS = ["pdf", "jpg", "jpeg", "png"];
@@ -34,4 +35,19 @@ export const FILE_NOT_FOUND = "file-not-found";
 /** Opens the stored copy in the system's default viewer. */
 export function openDocumentFile(filePath: string): Promise<void> {
   return invoke("open_document_file", { filePath });
+}
+
+/** Continuity Camera ("Import from iPhone") exists on macOS only; see src-tauri/src/continuity.rs. */
+export const canImportFromIphone = /Mac/.test(navigator.userAgent);
+
+/** Opens the native "Import from iPhone" menu (Take Photo, Scan Documents, …) below `button`. */
+export function showIphoneImportMenu(button: HTMLElement, title: string): Promise<void> {
+  const rect = button.getBoundingClientRect();
+  return invoke("show_iphone_import_menu", { x: rect.left, y: rect.bottom + 4, title });
+}
+
+/** Calls `onFile` with the path of each scan or photo received from the iPhone; returns a stop function. */
+export function onIphoneImport(onFile: (path: string) => void): () => void {
+  const stop = listen<string>("continuity-import", (e) => onFile(e.payload));
+  return () => void stop.then((unlisten) => unlisten());
 }

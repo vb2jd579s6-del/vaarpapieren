@@ -42,6 +42,7 @@ export const tl: Messages = {
     file: "File",
     fileHint: "PDF, JPG o PNG. Isang kopya ang itatago sa app; mananatili ang orihinal kung nasaan ito.",
     chooseFile: "Pumili ng file…",
+    importFromIphone: "Mag-import mula sa iPhone…",
     fileFilter: "Mga dokumento",
     removeFile: "Alisin ang file",
     noFile: "Walang napiling file",
@@ -80,6 +81,9 @@ export const tl: Messages = {
   },
   settings: {
     title: "Mga Setting",
+    layoutSection: "Itsura",
+    tabsPosition: "Posisyon ng mga tab",
+    positions: { left: "Kaliwa", center: "Gitna", right: "Kanan" },
     languageSection: "Wika",
     languageHint: "Ang wika ng app, ng menu sa menu bar/system tray, at ng mga notification.",
     notificationsSection: "Mga notification",

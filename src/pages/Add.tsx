@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { IphoneImportButton } from "../components/IphoneImportButton";
 import { ERROR_FIELD, errorText, Field, NotesInput, VersionInputs } from "../components/FormFields";
 import { t } from "../i18n";
 import { listClasses } from "../lib/db/classes";
@@ -147,6 +148,7 @@ export function Add({ onSaved }: { onSaved: () => void }) {
           <button type="button" className="btn" onClick={chooseFile}>
             {t.add.chooseFile}
           </button>
+          <IphoneImportButton onFile={setFile} onError={(e) => setSaveError(String(e))} />
           <span className={file ? undefined : "muted"}>{file ? fileName(file) : t.add.noFile}</span>
           {file && (
             <button type="button" className="icon-btn small" title={t.add.removeFile} aria-label={t.add.removeFile} onClick={() => setFile(null)}>

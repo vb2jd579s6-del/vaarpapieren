@@ -1,3 +1,5 @@
+#[cfg(target_os = "macos")]
+mod continuity;
 mod files;
 
 use std::time::Duration;
@@ -285,11 +287,17 @@ pub fn run() {
             files::import_document_file,
             files::open_document_file,
             files::remove_document_file,
+            #[cfg(target_os = "macos")]
+            continuity::show_iphone_import_menu,
             set_menu_texts
         ])
         .setup(|app| {
             setup_tray(app.handle())?;
             set_app_menu(app.handle(), default_app_menu_texts())?;
+            #[cfg(target_os = "macos")]
+            if let Some(window) = app.get_webview_window(MAIN_WINDOW) {
+                continuity::install(app.handle(), &window)?;
+            }
             handle_notification_clicks(app.handle())?;
             start_check_timer(app.handle().clone());
             // Started by autostart: stay in the tray without showing the window.
