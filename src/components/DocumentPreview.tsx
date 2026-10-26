@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { t } from "../i18n";
-import type { DocumentVersion } from "../lib/domain/types";
+import type { DocumentFile } from "../lib/domain/types";
 import { previewKind, previewUrl } from "../lib/files";
 
 interface DocumentPreviewProps {
-  version: DocumentVersion;
+  file: DocumentFile | null;
   size: "thumb" | "large";
+  /** Thumbnails only: how many more files the version has ("+2"). */
+  more?: number;
   /** Large previews open the document when clicked, like the Open button. */
   onOpen?: () => void;
 }
@@ -14,8 +16,9 @@ interface DocumentPreviewProps {
  * The stored scan, photo or PDF. Images show as is; a PDF shows its first page where the web
  * engine can draw PDFs as images (WebKit on macOS), else a PDF placeholder.
  */
-export function DocumentPreview({ version, size, onOpen }: DocumentPreviewProps) {
-  const kind = previewKind(version.file_path);
+export function DocumentPreview({ file, size, more = 0, onOpen }: DocumentPreviewProps) {
+  const path = file?.file_path ?? null;
+  const kind = previewKind(path);
   const [src, setSrc] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -23,15 +26,15 @@ export function DocumentPreview({ version, size, onOpen }: DocumentPreviewProps)
     let cancelled = false;
     setSrc(null);
     setFailed(false);
-    if (version.file_path && kind) {
-      previewUrl(version.file_path)
+    if (path && kind) {
+      previewUrl(path)
         .then((url) => !cancelled && setSrc(url))
         .catch(() => !cancelled && setFailed(true));
     }
     return () => {
       cancelled = true;
     };
-  }, [version.file_path, kind]);
+  }, [path, kind]);
 
   const content =
     src && !failed ? (
@@ -39,11 +42,11 @@ export function DocumentPreview({ version, size, onOpen }: DocumentPreviewProps)
     ) : (
       <span className="preview-placeholder">
         <FileIcon label={kind === "pdf" ? "PDF" : undefined} />
-        {size === "large" && <span>{version.file_path ? t.preview.noPreview : t.preview.noFile}</span>}
+        {size === "large" && <span>{path ? t.preview.noPreview : t.preview.noFile}</span>}
       </span>
     );
 
-  if (size === "large" && version.file_path && onOpen) {
+  if (size === "large" && path && onOpen) {
     return (
       <button type="button" className={`preview preview-${size}`} onClick={onOpen} title={t.preview.clickToOpen}>
         {content}
@@ -51,7 +54,12 @@ export function DocumentPreview({ version, size, onOpen }: DocumentPreviewProps)
       </button>
     );
   }
-  return <div className={`preview preview-${size}${version.file_path ? "" : " preview-empty"}`}>{content}</div>;
+  return (
+    <div className={`preview preview-${size}${path ? "" : " preview-empty"}`}>
+      {content}
+      {more > 0 && <span className="preview-more">+{more}</span>}
+    </div>
+  );
 }
 
 function FileIcon({ label }: { label?: string }) {

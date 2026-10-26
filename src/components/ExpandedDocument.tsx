@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { t } from "../i18n";
 import { formatDate } from "../lib/domain/dates";
 import type { OverviewItem } from "../lib/domain/overview";
@@ -23,6 +23,12 @@ export function ExpandedDocument({ item, versionId, handlers, onClose }: Expande
   const { version, index, isCurrent, older, newer } = useVersionSelection(item, versionId);
   const shownStatus = isCurrent ? status : "superseded";
   const panelRef = useRef<HTMLDivElement>(null);
+  const [fileIndex, setFileIndex] = useState(0);
+  const files = version.files;
+  const shownFile = files[Math.min(fileIndex, files.length - 1)] ?? null;
+
+  // Browsing to another version starts at its first file.
+  useEffect(() => setFileIndex(0), [version.id]);
 
   useEffect(() => {
     panelRef.current?.focus();
@@ -59,7 +65,25 @@ export function ExpandedDocument({ item, versionId, handlers, onClose }: Expande
         </header>
 
         <div className="expanded-body">
-          <DocumentPreview version={version} size="large" onOpen={() => handlers.onOpen(version)} />
+          <div className="expanded-files">
+            <DocumentPreview file={shownFile} size="large" onOpen={() => shownFile && handlers.onOpen(shownFile)} />
+            {files.length > 1 && (
+              <div className="filmstrip" role="tablist">
+                {files.map((f, i) => (
+                  <button
+                    key={f.id}
+                    role="tab"
+                    aria-selected={f === shownFile}
+                    aria-label={t.preview.fileOf(i + 1, files.length)}
+                    title={f.original_filename ?? t.preview.fileOf(i + 1, files.length)}
+                    onClick={() => setFileIndex(i)}
+                  >
+                    <DocumentPreview file={f} size="thumb" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="expanded-details">
             <p className={`expiry-text expiry-${shownStatus}`}>
               {isCurrent ? expiryText(item.daysLeft) : t.version.replacedBy(formatDate(versions[index - 1].issue_date))}
@@ -88,7 +112,7 @@ export function ExpandedDocument({ item, versionId, handlers, onClose }: Expande
 
         <footer className="card-foot">
           <VersionNavigator index={index} total={versions.length} older={older} newer={newer} />
-          <DocumentActions version={version} isCurrent={isCurrent} handlers={handlers} />
+          <DocumentActions version={version} isCurrent={isCurrent} handlers={handlers} openFile={shownFile ?? undefined} />
         </footer>
       </div>
     </div>

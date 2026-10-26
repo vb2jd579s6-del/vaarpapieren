@@ -41,7 +41,7 @@ export function DeleteDialog({ documentClass, version, isCurrent, versionCount, 
           <div className="small">{t.common.error(error)}</div>
         </div>
       )}
-      <p>{t.remove.message(documentClass.name, formatDate(version.issue_date), version.file_path !== null)}</p>
+      <p>{t.remove.message(documentClass.name, formatDate(version.issue_date), version.files.length > 0)}</p>
       <p className="muted">{isLast ? t.remove.lastVersion : isCurrent ? t.remove.currentWithOlder : t.remove.superseded}</p>
       {isLast && (
         <label className="checkbox">

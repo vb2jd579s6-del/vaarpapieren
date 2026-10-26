@@ -59,7 +59,7 @@ describe("validateEditForm", () => {
     const cls = { id: 1, name: "ECDIS", category: "STCW" as const, created_at: "" };
     const version = {
       id: 1, class_id: 1, issuing_authority: null, document_number: "X1", issue_date: "2024-02-01", expiry_date: null,
-      file_path: null, original_filename: null, notes: null, created_at: "", updated_at: "",
+      notes: null, created_at: "", updated_at: "", files: [],
     };
     const form = editFormFrom(cls, version);
     expect(form).toMatchObject({ issueDate: "01-02-2024", noExpiry: true, expiryDate: "", documentNumber: "X1", issuingAuthority: "" });

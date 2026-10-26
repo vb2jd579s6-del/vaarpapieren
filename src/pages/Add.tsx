@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { IphoneImportButton } from "../components/IphoneImportButton";
+import { FileList } from "../components/FileList";
 import { ERROR_FIELD, errorText, Field, NotesInput, VersionInputs } from "../components/FormFields";
 import { t } from "../i18n";
 import { listClasses } from "../lib/db/classes";
@@ -8,7 +8,7 @@ import { listVersions } from "../lib/db/versions";
 import { validateDocumentForm, type DocumentForm, type FormErrors } from "../lib/domain/documentForm";
 import { CATEGORIES, type Category, type DocumentClass } from "../lib/domain/types";
 import { saveNewDocument } from "../lib/documents";
-import { fileName, pickDocumentFile } from "../lib/files";
+import { fileName, pickDocumentFiles } from "../lib/files";
 
 const EMPTY_FORM: DocumentForm = {
   classChoice: "new",
@@ -26,7 +26,7 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
   const [classes, setClasses] = useState<DocumentClass[]>([]);
   const [versionCounts, setVersionCounts] = useState<Map<number, number>>(new Map());
   const [form, setForm] = useState<DocumentForm>(EMPTY_FORM);
-  const [file, setFile] = useState<string | null>(initialFile);
+  const [files, setFiles] = useState<string[]>(initialFile ? [initialFile] : []);
   const [errors, setErrors] = useState<FormErrors>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -54,8 +54,8 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
 
   const chooseFile = async () => {
     try {
-      const picked = await pickDocumentFile(t.add.fileFilter);
-      if (picked) setFile(picked);
+      const picked = await pickDocumentFiles(t.add.fileFilter);
+      if (picked.length) setFiles((list) => [...list, ...picked.filter((p) => !list.includes(p))]);
     } catch (e) {
       setSaveError(String(e));
     }
@@ -69,7 +69,7 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
     if (!valid) return;
     setSaving(true);
     try {
-      await saveNewDocument(await getDb(), form, valid, file);
+      await saveNewDocument(await getDb(), form, valid, files);
       onSaved();
     } catch (e) {
       setSaveError(String(e));
@@ -143,20 +143,13 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
 
       <VersionInputs value={form} errors={errors} onChange={patch} />
 
-      <Field label={t.add.file} hint={t.add.fileHint} optional>
-        <div className="file-picker">
-          <button type="button" className="btn" onClick={chooseFile}>
-            {t.add.chooseFile}
-          </button>
-          <IphoneImportButton onFile={setFile} onError={(e) => setSaveError(String(e))} />
-          <span className={file ? undefined : "muted"}>{file ? fileName(file) : t.add.noFile}</span>
-          {file && (
-            <button type="button" className="icon-btn small" title={t.add.removeFile} aria-label={t.add.removeFile} onClick={() => setFile(null)}>
-              ✕
-            </button>
-          )}
-        </div>
-      </Field>
+      <FileList
+        items={files.map((path) => ({ key: path, name: fileName(path) }))}
+        onAdd={chooseFile}
+        onAddPath={(path) => setFiles((list) => (list.includes(path) ? list : [...list, path]))}
+        onRemove={(path) => setFiles((list) => list.filter((p) => p !== path))}
+        onError={(e) => setSaveError(String(e))}
+      />
 
       <NotesInput value={form.notes} onChange={(v) => set("notes", v)} />
 
@@ -170,7 +163,7 @@ export function Add({ onSaved, initialFile = null }: { onSaved: () => void; init
           disabled={saving}
           onClick={() => {
             setForm(EMPTY_FORM);
-            setFile(null);
+            setFiles([]);
             setErrors({});
             setSaveError(null);
           }}

@@ -351,3 +351,19 @@ button.preview-large:hover .preview-hint, button.preview-large:focus-visible .pr
 }
 @keyframes expand-in { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .expanded, .expanded-backdrop { animation: none; } }
+
+/* Several files per document */
+.file-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.file-list li { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
+.file-list li.removed .file-name { text-decoration: line-through; color: var(--text-muted); }
+.file-list .file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-glyph { width: 16px; height: 16px; flex: none; color: var(--text-muted); }
+.preview-more {
+  position: absolute; right: 4px; bottom: 4px; background: rgba(6, 42, 47, 0.82); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: var(--radius-pill);
+}
+.expanded-files { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.filmstrip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.filmstrip button { border: 2px solid transparent; background: none; padding: 0; border-radius: 12px; flex: none; }
+.filmstrip button[aria-selected="true"] { border-color: var(--accent); }
+.filmstrip .preview-thumb { width: 52px; height: 68px; }

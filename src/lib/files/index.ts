@@ -10,10 +10,11 @@ export interface ImportedFile {
   original_filename: string;
 }
 
-/** Native file picker for PDF/JPG/PNG; null when cancelled. */
-export async function pickDocumentFile(filterName: string): Promise<string | null> {
-  const picked = await open({ multiple: false, directory: false, filters: [{ name: filterName, extensions: DOCUMENT_EXTENSIONS }] });
-  return typeof picked === "string" ? picked : null;
+/** Native file picker for PDF/JPG/PNG, several at once; empty when cancelled. */
+export async function pickDocumentFiles(filterName: string): Promise<string[]> {
+  const picked = await open({ multiple: true, directory: false, filters: [{ name: filterName, extensions: DOCUMENT_EXTENSIONS }] });
+  if (picked === null) return [];
+  return Array.isArray(picked) ? picked : [picked];
 }
 
 /** Copies the file into the app data directory (see src-tauri/src/files.rs). */

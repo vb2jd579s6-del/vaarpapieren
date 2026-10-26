@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createClass, deleteEmptyClass, findClassByName, listClasses } from "./classes";
 import { clearNotified, listNotificationLog, markNotified } from "./notificationLog";
 import { getSetting, getThresholds, setSetting, setThresholds } from "./settings";
+import { addFile } from "./documentFiles";
 import { createTestDb } from "./testDb";
 import type { Db } from "./types";
 import { createVersion, listVersions, type NewVersion } from "./versions";
@@ -12,8 +13,6 @@ const version = (class_id: number, issue_date: string, expiry_date: string | nul
   expiry_date,
   issuing_authority: "ILT",
   document_number: "123",
-  file_path: null,
-  original_filename: null,
   notes: null,
 });
 
@@ -85,5 +84,38 @@ describe("repositories", () => {
     expect((await listNotificationLog(db)).map((r) => r.threshold_days).sort()).toEqual([30, 60, 90]);
     await clearNotified(db, v);
     expect(await listNotificationLog(db)).toEqual([]);
+  });
+
+  it("lists the files of each version in order", async () => {
+    const id = await createClass(db, "Paspoort", "Identity");
+    const v = await createVersion(db, version(id, "2020-01-01"));
+    await addFile(db, v, { file_path: "files/back.jpg", original_filename: "back.jpg" }, 1);
+    await addFile(db, v, { file_path: "files/front.jpg", original_filename: "front.jpg" }, 0);
+    const [row] = await listVersions(db);
+    expect(row.files.map((f) => f.original_filename)).toEqual(["front.jpg", "back.jpg"]);
+    expect(row).not.toHaveProperty("file_path");
+  });
+
+  it("refuses to delete a version that still has file records only through deleteVersion", async () => {
+    const id = await createClass(db, "ECDIS", "STCW");
+    const v = await createVersion(db, version(id, "2020-01-01"));
+    await addFile(db, v, { file_path: "files/a.pdf", original_filename: null }, 0);
+    await expect(db.execute("DELETE FROM document_version WHERE id = $1", [v])).rejects.toThrow();
+  });
+});
+
+describe("migration 0002 (document files)", () => {
+  it("moves the single file of each version into document_file", async () => {
+    const db = createTestDb(1);
+    await db.execute("INSERT INTO document_class (name, category) VALUES ('BST', 'STCW')");
+    await db.execute(
+      "INSERT INTO document_version (class_id, issue_date, file_path, original_filename) VALUES (1, '2021-01-01', 'files/1.pdf', 'BST.pdf')",
+    );
+    await db.execute("INSERT INTO document_version (class_id, issue_date) VALUES (1, '2016-01-01')");
+    db.migrateRest();
+    const versions = await listVersions(db);
+    expect(versions.find((v) => v.id === 1)?.files).toMatchObject([{ file_path: "files/1.pdf", original_filename: "BST.pdf", position: 0 }]);
+    expect(versions.find((v) => v.id === 2)?.files).toEqual([]);
+    expect(await db.select("SELECT file_path FROM document_version WHERE file_path IS NOT NULL")).toEqual([]);
   });
 });

@@ -17,10 +17,19 @@ export interface DocumentVersion {
   issue_date: string;
   /** ISO date (YYYY-MM-DD); null when the document does not expire */
   expiry_date: string | null;
-  /** Relative to the app data directory */
-  file_path: string | null;
-  original_filename: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
+  /** Scans, photos or PDFs of this version, in order; may be empty. */
+  files: DocumentFile[];
+}
+
+export interface DocumentFile {
+  id: number;
+  version_id: number;
+  /** Relative to the app data directory, with forward slashes */
+  file_path: string;
+  original_filename: string | null;
+  position: number;
+  created_at: string;
 }

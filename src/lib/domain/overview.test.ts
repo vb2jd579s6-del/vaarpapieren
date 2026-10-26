@@ -10,11 +10,10 @@ const ver = (id: number, class_id: number, issue_date: string, expiry_date: stri
   expiry_date,
   issuing_authority: null,
   document_number: null,
-  file_path: null,
-  original_filename: null,
   notes: null,
   created_at: "",
   updated_at: "",
+  files: [],
 });
 
 const TODAY = "2026-10-25";

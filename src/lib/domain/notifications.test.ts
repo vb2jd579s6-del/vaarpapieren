@@ -7,7 +7,7 @@ import type { DocumentClass, DocumentVersion } from "./types";
 const cls = (id: number, name: string): DocumentClass => ({ id, name, category: "STCW", created_at: "" });
 const ver = (id: number, class_id: number, issue_date: string, expiry_date: string | null): DocumentVersion => ({
   id, class_id, issue_date, expiry_date, issuing_authority: null, document_number: null,
-  file_path: null, original_filename: null, notes: null, created_at: "", updated_at: "",
+  notes: null, created_at: "", updated_at: "", files: [],
 });
 
 const TODAY = "2026-10-25";

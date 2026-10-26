@@ -58,7 +58,7 @@ export function DocumentCard({ item, handlers, focusVersionId }: { item: Overvie
             </>
           )}
         </dl>
-        <DocumentPreview version={version} size="thumb" />
+        <DocumentPreview file={version.files[0] ?? null} size="thumb" more={version.files.length - 1} />
       </div>
       {version.notes && <p className="notes small">{version.notes}</p>}
       <footer className="card-foot">

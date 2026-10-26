@@ -82,9 +82,8 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
   const handlers: VersionHandlers = useMemo(() => {
     const find = (version: DocumentVersion) => items?.find((i) => i.documentClass.id === version.class_id);
     return {
-      onOpen: (version) => {
-        if (!version.file_path) return;
-        openDocumentFile(version.file_path).catch((err) =>
+      onOpen: (file) => {
+        openDocumentFile(file.file_path).catch((err) =>
           setMessage(
             String(err) === FILE_NOT_FOUND
               ? { kind: "error", text: t.actions.fileNotFound }

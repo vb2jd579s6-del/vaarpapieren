@@ -9,11 +9,10 @@ const v = (id: number, class_id: number, issue_date: string): DocumentVersion =>
   expiry_date: null,
   issuing_authority: null,
   document_number: null,
-  file_path: null,
-  original_filename: null,
   notes: null,
   created_at: "",
   updated_at: "",
+  files: [],
 });
 
 describe("versions", () => {

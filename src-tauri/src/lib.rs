@@ -19,12 +19,20 @@ const MAIN_WINDOW: &str = "main";
 const DB_URL: &str = "sqlite:vaarpapieren.db";
 
 fn migrations() -> Vec<Migration> {
-    vec![Migration {
-        version: 1,
-        description: "init",
-        sql: include_str!("../migrations/0001_init.sql"),
-        kind: MigrationKind::Up,
-    }]
+    vec![
+        Migration {
+            version: 1,
+            description: "init",
+            sql: include_str!("../migrations/0001_init.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 2,
+            description: "document_files",
+            sql: include_str!("../migrations/0002_document_files.sql"),
+            kind: MigrationKind::Up,
+        },
+    ]
 }
 
 /// Event the frontend listens for to run the expiry check (tray menu "Nu controleren" and the timer).

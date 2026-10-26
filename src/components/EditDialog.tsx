@@ -2,11 +2,11 @@ import { useState } from "react";
 import { t } from "../i18n";
 import { getDb } from "../lib/db/connection";
 import { editFormFrom, validateEditForm, type EditForm, type FormErrors } from "../lib/domain/documentForm";
-import { CATEGORIES, type Category, type DocumentClass, type DocumentVersion } from "../lib/domain/types";
-import { updateDocument, type FileChange } from "../lib/documents";
-import { fileName, pickDocumentFile } from "../lib/files";
+import { CATEGORIES, type Category, type DocumentClass, type DocumentFile, type DocumentVersion } from "../lib/domain/types";
+import { updateDocument } from "../lib/documents";
+import { fileName, pickDocumentFiles } from "../lib/files";
 import { ConfirmDialog } from "./ConfirmDialog";
-import { IphoneImportButton } from "./IphoneImportButton";
+import { FileList } from "./FileList";
 import { ERROR_FIELD, errorText, Field, NotesInput, VersionInputs } from "./FormFields";
 import { Modal } from "./Modal";
 
@@ -25,7 +25,9 @@ interface EditDialogProps {
 export function EditDialog({ documentClass, version, isCurrent, versionCount, otherClassNames, onClose, onSaved }: EditDialogProps) {
   const [form, setForm] = useState<EditForm>(() => editFormFrom(documentClass, version));
   const [errors, setErrors] = useState<FormErrors>({});
-  const [fileChange, setFileChange] = useState<FileChange>({ kind: "keep" });
+  /** Ids of stored files marked for removal, and files on disk to add. */
+  const [removeIds, setRemoveIds] = useState<number[]>([]);
+  const [added, setAdded] = useState<string[]>([]);
   const [confirmingFile, setConfirmingFile] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -36,12 +38,13 @@ export function EditDialog({ documentClass, version, isCurrent, versionCount, ot
     setErrors((errs) => Object.fromEntries(Object.entries(errs).filter(([k]) => !cleared.includes(k as keyof FormErrors))));
   };
 
-  const currentFileName = version.original_filename ?? (version.file_path ? fileName(version.file_path) : null);
+  const nameOf = (f: DocumentFile) => f.original_filename ?? fileName(f.file_path);
+  const removed = version.files.filter((f) => removeIds.includes(f.id));
+  const addPaths = (paths: string[]) => setAdded((list) => [...list, ...paths.filter((p) => !list.includes(p))]);
 
-  const chooseFile = async () => {
+  const chooseFiles = async () => {
     try {
-      const picked = await pickDocumentFile(t.add.fileFilter);
-      if (picked) setFileChange({ kind: "replace", source: picked });
+      addPaths(await pickDocumentFiles(t.add.fileFilter));
     } catch (e) {
       setSaveError(String(e));
     }
@@ -55,8 +58,8 @@ export function EditDialog({ documentClass, version, isCurrent, versionCount, ot
     setSaving(true);
     setSaveError(null);
     try {
-      const { oldFileRemoved } = await updateDocument(await getDb(), documentClass, version, form, valid, fileChange);
-      onSaved(oldFileRemoved ? undefined : t.edit.oldFileNotRemoved);
+      const { oldFilesRemoved } = await updateDocument(await getDb(), documentClass, version, form, valid, { remove: removed, add: added });
+      onSaved(oldFilesRemoved ? undefined : t.edit.oldFileNotRemoved);
     } catch (e) {
       setSaveError(String(e));
       setSaving(false);
@@ -65,7 +68,7 @@ export function EditDialog({ documentClass, version, isCurrent, versionCount, ot
 
   const requestSave = () => {
     const { valid, errors } = validateEditForm(form, otherClassNames);
-    if (valid && fileChange.kind !== "keep" && version.file_path) setConfirmingFile(true);
+    if (valid && removed.length > 0) setConfirmingFile(true);
     else if (valid) void save();
     else setErrors(errors);
   };
@@ -116,44 +119,33 @@ export function EditDialog({ documentClass, version, isCurrent, versionCount, ot
         <legend>{t.edit.versionSection(isCurrent ? t.version.current : t.version.superseded)}</legend>
         <VersionInputs value={form} errors={errors} onChange={patch} />
 
-        <Field label={t.add.file} hint={t.add.fileHint} optional>
-          <div className="file-picker">
-            {fileChange.kind === "keep" ? (
-              <span className={currentFileName ? undefined : "muted"}>{currentFileName ?? t.add.noFile}</span>
-            ) : (
-              <span className="pending-change">
-                {fileChange.kind === "replace" ? t.edit.fileWillBeReplaced(fileName(fileChange.source)) : t.edit.fileWillBeRemoved}
-              </span>
-            )}
-            <button type="button" className="btn" onClick={chooseFile}>
-              {currentFileName || fileChange.kind === "replace" ? t.edit.replaceFile : t.add.chooseFile}
-            </button>
-            <IphoneImportButton onFile={(source) => setFileChange({ kind: "replace", source })} onError={(e) => setSaveError(String(e))} />
-            {fileChange.kind === "keep" && currentFileName && (
-              <button type="button" className="btn" onClick={() => setFileChange({ kind: "remove" })}>
-                {t.edit.removeFile}
-              </button>
-            )}
-            {fileChange.kind !== "keep" && (
-              <button type="button" className="btn" onClick={() => setFileChange({ kind: "keep" })}>
-                {t.edit.undoFileChange}
-              </button>
-            )}
-          </div>
-        </Field>
+        <FileList
+          items={[
+            ...version.files.map((f) => ({ key: `stored-${f.id}`, name: nameOf(f), removed: removeIds.includes(f.id) })),
+            ...added.map((path) => ({ key: `new-${path}`, name: fileName(path) })),
+          ]}
+          onAdd={chooseFiles}
+          onAddPath={(path) => addPaths([path])}
+          onRemove={(key) => {
+            if (key.startsWith("stored-")) setRemoveIds((ids) => [...ids, Number(key.slice(7))]);
+            else setAdded((list) => list.filter((p) => `new-${p}` !== key));
+          }}
+          onUndo={(key) => setRemoveIds((ids) => ids.filter((id) => `stored-${id}` !== key))}
+          onError={(e) => setSaveError(String(e))}
+        />
 
         <NotesInput value={form.notes} onChange={(v) => patch({ notes: v })} />
       </fieldset>
 
-      {confirmingFile && currentFileName && (
+      {confirmingFile && (
         <ConfirmDialog
-          title={fileChange.kind === "replace" ? t.edit.confirmReplaceTitle : t.edit.confirmRemoveTitle}
+          title={t.edit.confirmRemoveTitle}
           confirmLabel={t.edit.confirmFileButton}
           danger
           onConfirm={save}
           onCancel={() => setConfirmingFile(false)}
         >
-          <p>{fileChange.kind === "replace" ? t.edit.confirmFileReplace(currentFileName) : t.edit.confirmFileRemove(currentFileName)}</p>
+          <p>{t.edit.confirmFilesRemove(removed.map(nameOf))}</p>
         </ConfirmDialog>
       )}
     </Modal>
