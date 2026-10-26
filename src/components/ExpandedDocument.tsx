@@ -3,6 +3,7 @@ import { t } from "../i18n";
 import { formatDate } from "../lib/domain/dates";
 import type { OverviewItem } from "../lib/domain/overview";
 import { expiryText } from "../lib/expiryText";
+import { addToCalendar } from "../lib/calendarApp";
 import { EXPAND_TRANSITION } from "../lib/viewTransition";
 import { DocumentActions, type VersionHandlers } from "./DocumentActions";
 import { DocumentPreview } from "./DocumentPreview";
@@ -107,6 +108,14 @@ export function ExpandedDocument({ item, versionId, handlers, onClose }: Expande
               )}
             </dl>
             {version.notes && <p className="notes">{version.notes}</p>}
+            {isCurrent && version.expiry_date && status !== "expired" && (
+              <button
+                className="btn btn-small calendar-btn"
+                onClick={() => addToCalendar([item], `vaarpapieren-${version.id}`).catch((err) => console.error("Calendar export failed", err))}
+              >
+                {t.calendar.addOne}
+              </button>
+            )}
           </div>
         </div>
 

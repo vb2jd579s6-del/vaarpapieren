@@ -298,6 +298,13 @@ export const de: Messages = {
     matched: (name: string) => `Gefunden: ${name}`,
     summary: (ok: number, total: number) => `${ok} von ${total} in Ordnung`,
   },
+  calendar: {
+    summary: (name: string) => `${name} läuft ab`,
+    addOne: "Zum Kalender",
+    addAll: "Alle zum Kalender",
+    opened: "Die Ablaufdaten sind in deiner Kalender-App geöffnet; bestätige dort das Hinzufügen.",
+    nothing: "Keine Ablaufdaten zum Hinzufügen.",
+  },
   version: {
     superseded: "Ersetzt",
     current: "Aktuell",

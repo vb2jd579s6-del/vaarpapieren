@@ -16,6 +16,7 @@ import { todayIso } from "../lib/domain/dates";
 import { buildOverview, countByGroup, filterOverview, type OverviewItem, type StatusGroup } from "../lib/domain/overview";
 import { CATEGORIES, type Category, type DocumentClass, type DocumentVersion } from "../lib/domain/types";
 import { FILE_NOT_FOUND, openDocumentFile } from "../lib/files";
+import { addToCalendar } from "../lib/calendarApp";
 import { refreshMenus } from "../lib/menus";
 import { sendTestNotification } from "../lib/notifications";
 import { EXPAND_TRANSITION, withViewTransition } from "../lib/viewTransition";
@@ -276,6 +277,20 @@ export function Overview({ onAdd, focusVersionId }: { onAdd: () => void; focusVe
           ))}
         </select>
         <span className="spacer" />
+        <button
+          className="btn btn-icon-text"
+          onClick={() =>
+            addToCalendar(items, "vaarpapieren")
+              .then((added) => setMessage({ kind: "info", text: added ? t.calendar.opened : t.calendar.nothing }))
+              .catch((err) => setMessage({ kind: "error", text: t.settings.error, detail: String(err) }))
+          }
+        >
+          <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="16" rx="2" />
+            <path d="M3 10h18M8 3v4M16 3v4" />
+          </svg>
+          {t.calendar.addAll}
+        </button>
         <button className="btn btn-icon-text" onClick={() => setListOpen(true)}>
           <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />

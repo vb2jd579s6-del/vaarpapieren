@@ -297,6 +297,13 @@ export const nl = {
     matched: (name: string) => `Gevonden: ${name}`,
     summary: (ok: number, total: number) => `${ok} van ${total} in orde`,
   },
+  calendar: {
+    summary: (name: string) => `${name} verloopt`,
+    addOne: "Naar agenda",
+    addAll: "Alles naar agenda",
+    opened: "Alle vervaldatums staan in de agenda-app; bevestig daar het toevoegen.",
+    nothing: "Geen vervaldatums om toe te voegen.",
+  },
   version: {
     superseded: "Vervangen",
     current: "Actueel",

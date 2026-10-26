@@ -298,6 +298,13 @@ export const fr: Messages = {
     matched: (name: string) => `Trouvé : ${name}`,
     summary: (ok: number, total: number) => `${ok} sur ${total} en règle`,
   },
+  calendar: {
+    summary: (name: string) => `${name} expire`,
+    addOne: "Ajouter au calendrier",
+    addAll: "Tout au calendrier",
+    opened: "Les dates d'expiration sont ouvertes dans votre app de calendrier ; confirmez-y l'ajout.",
+    nothing: "Aucune date d'expiration à ajouter.",
+  },
   version: {
     superseded: "Remplacée",
     current: "Actuelle",

@@ -298,6 +298,13 @@ export const es: Messages = {
     matched: (name: string) => `Encontrado: ${name}`,
     summary: (ok: number, total: number) => `${ok} de ${total} en regla`,
   },
+  calendar: {
+    summary: (name: string) => `Caduca: ${name}`,
+    addOne: "Al calendario",
+    addAll: "Todo al calendario",
+    opened: "Las fechas de caducidad están abiertas en tu app de calendario; confirma allí que quieres añadirlas.",
+    nothing: "No hay fechas de caducidad que añadir.",
+  },
   version: {
     superseded: "Sustituida",
     current: "Actual",

@@ -26,10 +26,10 @@ gebruiker erom vraagt.
       melding dat dit indicatief is (eisen verschillen per vlagstaat en rederij).
 
 ## 3. Agenda-koppeling
-- [ ] `src/lib/calendar.ts` (getest): .ics met per actueel document een hele-dag-afspraak op de
+- [x] `src/lib/calendar.ts` (getest): .ics met per actueel document een hele-dag-afspraak op de
       vervaldatum, herinneringen (VALARM) volgens de ingestelde drempels, vaste UID per versie.
-- [ ] Rust: .ics in de cache-map schrijven en openen met de standaard-agenda-app.
-- [ ] Knoppen: "Naar agenda" in het vergrote document en "Alle vervaldatums naar agenda" in het
+- [x] Rust: .ics in de cache-map schrijven en openen met de standaard-agenda-app.
+- [x] Knoppen: "Naar agenda" in het vergrote document en "Alle vervaldatums naar agenda" in het
       Overzicht.
 
 ## 4. Export/import

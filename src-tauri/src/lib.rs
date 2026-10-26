@@ -358,6 +358,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             files::import_document_file,
             files::open_document_file,
+            files::open_calendar_file,
             files::remove_document_file,
             #[cfg(target_os = "macos")]
             continuity::show_iphone_import_menu,

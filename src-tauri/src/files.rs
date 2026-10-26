@@ -109,3 +109,20 @@ mod tests {
         assert!(!is_stored_path("other/files/x.pdf"));
     }
 }
+
+/// Writes an .ics file to the app's cache folder and opens it in the default calendar app,
+/// which then offers to add the events.
+#[tauri::command]
+pub fn open_calendar_file(app: AppHandle, name: String, content: String) -> Result<(), String> {
+    let valid = name.ends_with(".ics") && !name.contains(['/', '\\']) && !name.starts_with('.');
+    if !valid {
+        return Err(format!("Invalid calendar file name: {name}"));
+    }
+    let dir = app.path().app_cache_dir().map_err(|e| e.to_string())?.join("calendar");
+    std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let path = dir.join(name);
+    std::fs::write(&path, content).map_err(|e| e.to_string())?;
+    app.opener()
+        .open_path(path.to_string_lossy(), None::<&str>)
+        .map_err(|e| e.to_string())
+}

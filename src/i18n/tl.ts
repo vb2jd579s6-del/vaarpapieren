@@ -298,6 +298,13 @@ export const tl: Messages = {
     matched: (name: string) => `Nahanap: ${name}`,
     summary: (ok: number, total: number) => `${ok} sa ${total} ang ayos`,
   },
+  calendar: {
+    summary: (name: string) => `Mag-e-expire: ${name}`,
+    addOne: "Idagdag sa kalendaryo",
+    addAll: "Lahat sa kalendaryo",
+    opened: "Bukas na sa iyong calendar app ang mga petsa ng pag-expire; kumpirmahin doon ang pagdagdag.",
+    nothing: "Walang petsa ng pag-expire na idadagdag.",
+  },
   version: {
     superseded: "Pinalitan",
     current: "Kasalukuyan",
