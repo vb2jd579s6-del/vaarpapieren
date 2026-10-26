@@ -1,3 +1,4 @@
+import { listen } from "@tauri-apps/api/event";
 import { useCallback, useEffect, useState } from "react";
 import { Tabs, type TabItem } from "./components/Tabs";
 import { language, t, type Language } from "./i18n";
@@ -30,6 +31,15 @@ export default function App() {
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
   const [focus, setFocus] = useState<{ versionId: number; nonce: number } | null>(null);
   const endSplash = useCallback(() => setShowSplash(false), []);
+
+  // App menu → Settings (⌘,); the event name matches EVENT_OPEN_SETTINGS in lib.rs.
+  useEffect(() => {
+    const stop = listen("open-settings", () => {
+      setShowSplash(false);
+      setPage("settings");
+    });
+    return () => void stop.then((unlisten) => unlisten());
+  }, []);
 
   useEffect(
     () =>

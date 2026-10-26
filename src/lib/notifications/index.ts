@@ -15,9 +15,11 @@ import { buildOverview } from "../domain/overview";
 const EVENT_CHECK_NOW = "check-now";
 const EVENT_OPEN_DOCUMENT = "open-document";
 
-/** Sets the tray menu texts in the active language (see set_tray_texts in lib.rs). */
-export function applyTrayTexts(): void {
-  invoke("set_tray_texts", { texts: t.tray }).catch((err) => console.error("Could not set tray texts", err));
+/** Sets the tray menu and the macOS app menu in the active language (see set_menu_texts in lib.rs). */
+export function applyMenuTexts(): void {
+  invoke("set_menu_texts", { texts: { tray: t.tray, appMenu: t.appMenu } }).catch((err) =>
+    console.error("Could not set menu texts", err),
+  );
 }
 
 export async function ensurePermission(): Promise<boolean> {
@@ -69,7 +71,7 @@ export async function sendTestNotification(): Promise<boolean> {
  */
 export function startNotificationService(onOpenDocument: (versionId: number) => void): () => void {
   const report = (err: unknown) => console.error("Expiry check failed", err);
-  applyTrayTexts();
+  applyMenuTexts();
   void runExpiryCheck().catch(report);
   const stops = [
     listen(EVENT_CHECK_NOW, () => void runExpiryCheck().catch(report)),

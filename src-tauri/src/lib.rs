@@ -28,6 +28,10 @@ fn migrations() -> Vec<Migration> {
 /// Event the frontend listens for to run the expiry check (tray menu "Nu controleren" and the timer).
 const EVENT_CHECK_NOW: &str = "check-now";
 
+/// Event: the Settings item of the app menu (⌘,) was chosen.
+const EVENT_OPEN_SETTINGS: &str = "open-settings";
+const MENU_SETTINGS: &str = "settings";
+
 /// Event with a version id: a notification about that version was clicked.
 const EVENT_OPEN_DOCUMENT: &str = "open-document";
 
@@ -63,13 +67,135 @@ fn tray_menu(app: &AppHandle, texts: &TrayTexts) -> tauri::Result<Menu<Wry>> {
 }
 
 /// Replaces the whole tray menu: renaming the existing items does not show on macOS.
-#[tauri::command]
-fn set_tray_texts(app: AppHandle, texts: TrayTexts) -> Result<(), String> {
-    let tray = app.tray_by_id(TRAY_ID).ok_or("Tray icon not found")?;
-    let menu = tray_menu(&app, &texts).map_err(|e| e.to_string())?;
-    tray.set_menu(Some(menu)).map_err(|e| e.to_string())?;
-    tray.set_tooltip(Some(texts.tooltip)).map_err(|e| e.to_string())?;
+fn set_tray_menu(app: &AppHandle, texts: TrayTexts) -> tauri::Result<()> {
+    if let Some(tray) = app.tray_by_id(TRAY_ID) {
+        tray.set_menu(Some(tray_menu(app, &texts)?))?;
+        tray.set_tooltip(Some(texts.tooltip))?;
+    }
     Ok(())
+}
+
+/// Texts of the macOS app menu at the top of the screen (src/i18n, `appMenu`).
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AppMenuTexts {
+    about: String,
+    settings: String,
+    hide: String,
+    hide_others: String,
+    show_all: String,
+    quit: String,
+    edit: String,
+    undo: String,
+    redo: String,
+    cut: String,
+    copy: String,
+    paste: String,
+    select_all: String,
+    window: String,
+    minimize: String,
+    zoom: String,
+    close: String,
+}
+
+/// Placeholder texts until the frontend has loaded the saved language.
+fn default_app_menu_texts() -> AppMenuTexts {
+    AppMenuTexts {
+        about: "Over Vaarpapieren".into(),
+        settings: "Instellingen…".into(),
+        hide: "Verberg Vaarpapieren".into(),
+        hide_others: "Verberg andere".into(),
+        show_all: "Toon alles".into(),
+        quit: "Stop Vaarpapieren".into(),
+        edit: "Wijzig".into(),
+        undo: "Herstel".into(),
+        redo: "Opnieuw".into(),
+        cut: "Knip".into(),
+        copy: "Kopieer".into(),
+        paste: "Plak".into(),
+        select_all: "Selecteer alles".into(),
+        window: "Venster".into(),
+        minimize: "Minimaliseer".into(),
+        zoom: "Zoom".into(),
+        close: "Sluit venster".into(),
+    }
+}
+
+/// Only what the app uses: the app menu (with Settings, ⌘,), Edit (so ⌘C/⌘V work in text
+/// fields) and Window. Windows has no app menu, so this is macOS only.
+#[cfg(target_os = "macos")]
+fn set_app_menu(app: &AppHandle, t: AppMenuTexts) -> tauri::Result<()> {
+    use tauri::menu::{AboutMetadata, PredefinedMenuItem, Submenu};
+
+    let pkg = app.package_info();
+    let about = AboutMetadata {
+        name: Some(pkg.name.clone()),
+        version: Some(pkg.version.to_string()),
+        ..Default::default()
+    };
+    let settings = MenuItem::with_id(app, MENU_SETTINGS, &t.settings, true, Some("CmdOrCtrl+,"))?;
+    let app_menu = Submenu::with_items(
+        app,
+        &pkg.name,
+        true,
+        &[
+            &PredefinedMenuItem::about(app, Some(&t.about), Some(about))?,
+            &PredefinedMenuItem::separator(app)?,
+            &settings,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::hide(app, Some(&t.hide))?,
+            &PredefinedMenuItem::hide_others(app, Some(&t.hide_others))?,
+            &PredefinedMenuItem::show_all(app, Some(&t.show_all))?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::quit(app, Some(&t.quit))?,
+        ],
+    )?;
+    let edit = Submenu::with_items(
+        app,
+        &t.edit,
+        true,
+        &[
+            &PredefinedMenuItem::undo(app, Some(&t.undo))?,
+            &PredefinedMenuItem::redo(app, Some(&t.redo))?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::cut(app, Some(&t.cut))?,
+            &PredefinedMenuItem::copy(app, Some(&t.copy))?,
+            &PredefinedMenuItem::paste(app, Some(&t.paste))?,
+            &PredefinedMenuItem::select_all(app, Some(&t.select_all))?,
+        ],
+    )?;
+    let window = Submenu::with_items(
+        app,
+        &t.window,
+        true,
+        &[
+            &PredefinedMenuItem::minimize(app, Some(&t.minimize))?,
+            &PredefinedMenuItem::maximize(app, Some(&t.zoom))?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::close_window(app, Some(&t.close))?,
+        ],
+    )?;
+    app.set_menu(Menu::with_items(app, &[&app_menu, &edit, &window])?)?;
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn set_app_menu(_app: &AppHandle, _texts: AppMenuTexts) -> tauri::Result<()> {
+    Ok(())
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MenuTexts {
+    tray: TrayTexts,
+    app_menu: AppMenuTexts,
+}
+
+/// Sets the tray menu and the app menu in the language chosen in the frontend.
+#[tauri::command]
+fn set_menu_texts(app: AppHandle, texts: MenuTexts) -> Result<(), String> {
+    set_tray_menu(&app, texts.tray).map_err(|e| e.to_string())?;
+    set_app_menu(&app, texts.app_menu).map_err(|e| e.to_string())
 }
 
 fn show_main_window(app: &AppHandle) {
@@ -159,10 +285,11 @@ pub fn run() {
             files::import_document_file,
             files::open_document_file,
             files::remove_document_file,
-            set_tray_texts
+            set_menu_texts
         ])
         .setup(|app| {
             setup_tray(app.handle())?;
+            set_app_menu(app.handle(), default_app_menu_texts())?;
             handle_notification_clicks(app.handle())?;
             start_check_timer(app.handle().clone());
             // Started by autostart: stay in the tray without showing the window.
@@ -172,6 +299,12 @@ pub fn run() {
                 }
             }
             Ok(())
+        })
+        .on_menu_event(|app, event| {
+            if event.id.as_ref() == MENU_SETTINGS {
+                show_main_window(app);
+                let _ = app.emit(EVENT_OPEN_SETTINGS, ());
+            }
         })
         // Closing the window hides it: the app (and the periodic check) keeps running in the tray.
         .on_window_event(|window, event| {
