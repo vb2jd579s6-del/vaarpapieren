@@ -36,5 +36,7 @@ gebruiker erom vraagt.
 - [x] Exportformaat versie 2 met `seaService` en de gekozen functie; versie 1 blijft importeerbaar.
 
 ## 5. Afronden
-- [ ] Alle tests, build, README (functies per platform), committen. Niet pushen of uitbrengen
+- [x] Alle tests, build, README (functies per platform), committen. Niet pushen of uitbrengen
       zonder dat de gebruiker erom vraagt.
+
+Status: alles af en lokaal gecommit (niet gepusht, niet uitgebracht, niet lokaal geïnstalleerd).

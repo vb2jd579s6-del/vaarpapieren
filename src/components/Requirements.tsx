@@ -74,7 +74,7 @@ export function Requirements({ onAdd }: { onAdd: (name: string) => void }) {
                 </span>
                 <span className="check-text">
                   <strong>{requirementName(requirement)}</strong>
-                  <span className="muted small">{item ? t.requirements.matched(item.documentClass.name) : t.requirements.state.missing}</span>
+                  {item && <span className="muted small">{t.requirements.matched(item.documentClass.name)}</span>}
                 </span>
                 <span className={`badge badge-${state === "valid" ? "valid" : state === "soon" ? "warning" : state === "expired" ? "expired" : "critical"}`}>
                   {t.requirements.state[state]}

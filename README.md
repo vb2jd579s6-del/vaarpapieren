@@ -219,6 +219,14 @@ Je kunt ook de vervaldatum van het testdocument aanpassen.
 | Importeren vanaf iPhone (Continuity Camera) | ✓ | – |
 | Datums en documentnummer uit een scan halen (Vision, offline) | ✓ | – |
 | Vergrendelen met Touch ID of wachtwoord | ✓ | – |
+| Vaartijd bijhouden en eisen per functie (tabblad Loopbaan) | ✓ | ✓ |
+| Vervaldatums naar de agenda (.ics met herinneringen) | ✓ | ✓ |
+
+**Loopbaan → Vaartijd:** periodes aan boord, met aan- en afmonsterdatum, schip, type en functie. Dagen tellen inclusief de begin- en einddag, en overlappende periodes tellen één keer. De voortgangsbalk toont de vaartijd in de laatste 5 jaar, ten opzichte van de 12 maanden die nodig zijn om je vaarbevoegdheid te verlengen (STCW I/11).
+
+**Loopbaan → Eisen per functie:** een indicatieve checklist op basis van STCW (`src/lib/domain/requirements.ts`). De app herkent je documenten aan zoekwoorden in de naam, en waar dat helpt aan de categorie.
+
+**Naar agenda:** de app maakt een `.ics` met een afspraak van een hele dag op elke vervaldatum, en een herinnering per meldingstermijn. Het bestand opent in de standaard-agenda-app. Een vaste UID per versie voorkomt dubbele afspraken, in agenda's die dat ondersteunen.
 
 **Exporteren en importeren** gaat met één `.vaarpapieren`-bestand, op Mac en Windows hetzelfde. In dat bestand zit een zip met `manifest.json` (de documenten, de versies, de gegevens van de bestanden, de meldingsgeschiedenis en de instellingen) en de documentbestanden zelf.
 
