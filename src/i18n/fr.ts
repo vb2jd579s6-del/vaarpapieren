@@ -286,6 +286,18 @@ export const fr: Messages = {
     deleteMessage: (vessel: string, from: string) => `La période sur ${vessel} à partir du ${from} sera définitivement supprimée.`,
     types: { cargo: "Cargo", container: "Porte-conteneurs", tanker: "Pétrolier", chemical: "Chimiquier", gas: "Gazier", passenger: "Navire à passagers", offshore: "Offshore", tug: "Remorqueur", fishing: "Pêche", yacht: "Yacht", inland: "Navigation intérieure", other: "Autre" },
   },
+  requirements: {
+    intro: "Choisissez une fonction pour voir les certificats nécessaires et ceux que vous avez déjà.",
+    role: "Fonction",
+    chooseRole: "Choisissez une fonction…",
+    disclaimer: "Indicatif, basé sur la STCW. Les exigences exactes dépendent de l'État du pavillon, du navire et de l'armateur ; vérifiez-les toujours auprès de l'autorité ou de votre employeur.",
+    add: "Ajouter",
+    roles: { deckRating: "Matelot", engineRating: "Matelot machine", cook: "Cuisinier", oow: "Officier de quart passerelle", oowTanker: "Officier pont sur pétrolier ou chimiquier", oowGas: "Officier pont sur gazier", master: "Capitaine", engineer: "Officier mécanicien" },
+    items: { coc: "Brevet / certificat de compétence (CoC)", medical: "Certificat médical d'aptitude", passport: "Passeport", dischargeBook: "Livret professionnel maritime" },
+    state: { valid: "En règle", soon: "Expire bientôt", expired: "Expiré", missing: "Manquant" },
+    matched: (name: string) => `Trouvé : ${name}`,
+    summary: (ok: number, total: number) => `${ok} sur ${total} en règle`,
+  },
   version: {
     superseded: "Remplacée",
     current: "Actuelle",

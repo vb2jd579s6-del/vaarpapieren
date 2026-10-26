@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Requirements } from "../components/Requirements";
 import { SeaTime } from "../components/SeaTime";
 import { SegmentedControl } from "../components/SegmentedControl";
 import { t } from "../i18n";
@@ -6,7 +7,7 @@ import { t } from "../i18n";
 type Section = "seaTime" | "requirements";
 
 /** Sea time and the certificates a role needs. */
-export function Career() {
+export function Career({ onAddDocument }: { onAddDocument: (name: string) => void }) {
   const [section, setSection] = useState<Section>("seaTime");
   return (
     <div className="career">
@@ -23,6 +24,7 @@ export function Career() {
         />
       </div>
       {section === "seaTime" && <SeaTime />}
+      {section === "requirements" && <Requirements onAdd={onAddDocument} />}
     </div>
   );
 }

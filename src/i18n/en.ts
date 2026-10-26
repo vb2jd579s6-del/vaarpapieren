@@ -286,6 +286,18 @@ export const en: Messages = {
     deleteMessage: (vessel: string, from: string) => `The period on ${vessel} from ${from} will be permanently deleted.`,
     types: { cargo: "General cargo", container: "Container ship", tanker: "Oil tanker", chemical: "Chemical tanker", gas: "Gas tanker", passenger: "Passenger ship", offshore: "Offshore", tug: "Tug", fishing: "Fishing", yacht: "Yacht", inland: "Inland waterways", other: "Other" },
   },
+  requirements: {
+    intro: "Choose a role to see which certificates it needs and which you already have.",
+    role: "Role",
+    chooseRole: "Choose a role…",
+    disclaimer: "Indicative, based on STCW. The exact requirements depend on the flag state, the vessel and the company; always check them with the authority or your employer.",
+    add: "Add",
+    roles: { deckRating: "Deck rating", engineRating: "Engine rating", cook: "Cook", oow: "Officer of the watch (deck)", oowTanker: "Deck officer on an oil or chemical tanker", oowGas: "Deck officer on a gas tanker", master: "Master", engineer: "Engineer officer" },
+    items: { coc: "Certificate of Competency (CoC)", medical: "Seafarer's medical certificate", passport: "Passport", dischargeBook: "Seaman's discharge book" },
+    state: { valid: "OK", soon: "Expires soon", expired: "Expired", missing: "Missing" },
+    matched: (name: string) => `Found: ${name}`,
+    summary: (ok: number, total: number) => `${ok} of ${total} OK`,
+  },
   version: {
     superseded: "Superseded",
     current: "Current",

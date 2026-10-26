@@ -286,6 +286,18 @@ export const es: Messages = {
     deleteMessage: (vessel: string, from: string) => `El periodo en ${vessel} desde ${from} se eliminará definitivamente.`,
     types: { cargo: "Carga general", container: "Portacontenedores", tanker: "Petrolero", chemical: "Quimiquero", gas: "Gasero", passenger: "Buque de pasaje", offshore: "Offshore", tug: "Remolcador", fishing: "Pesca", yacht: "Yate", inland: "Navegación interior", other: "Otros" },
   },
+  requirements: {
+    intro: "Elige un puesto para ver qué certificados necesita y cuáles ya tienes.",
+    role: "Puesto",
+    chooseRole: "Elige un puesto…",
+    disclaimer: "Indicativo, basado en STCW. Los requisitos exactos dependen del Estado de abanderamiento, del buque y de la naviera; compruébalos siempre con la autoridad o tu empresa.",
+    add: "Añadir",
+    roles: { deckRating: "Marinero", engineRating: "Marinero de máquinas", cook: "Cocinero", oow: "Oficial de guardia de puente", oowTanker: "Oficial de puente en petrolero o quimiquero", oowGas: "Oficial de puente en gasero", master: "Capitán", engineer: "Oficial de máquinas" },
+    items: { coc: "Certificado de competencia (CoC)", medical: "Certificado médico de marino", passport: "Pasaporte", dischargeBook: "Libreta de navegación" },
+    state: { valid: "En regla", soon: "Caduca pronto", expired: "Caducado", missing: "Falta" },
+    matched: (name: string) => `Encontrado: ${name}`,
+    summary: (ok: number, total: number) => `${ok} de ${total} en regla`,
+  },
   version: {
     superseded: "Sustituida",
     current: "Actual",

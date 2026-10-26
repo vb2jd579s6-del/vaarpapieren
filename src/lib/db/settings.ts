@@ -8,6 +8,7 @@ export const SETTING_KEYS = {
   tabsPosition: "tabs_position",
   activated: "activated",
   holderName: "holder_name",
+  careerRole: "career_role",
   /** Per computer: not exported, since Windows has no Touch ID. */
   lockEnabled: "lock_enabled",
   thresholds: "notification_thresholds",

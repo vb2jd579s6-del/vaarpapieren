@@ -58,6 +58,8 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
   }, [lockEnabled]);
   /** A scan that arrived while no Add page was open; the nonce remounts Add so it takes it over. */
   const [pendingScan, setPendingScan] = useState<{ path: string; nonce: number } | null>(null);
+  /** A document type to add, chosen from a missing requirement; prefills the Add form. */
+  const [pendingName, setPendingName] = useState<{ name: string; nonce: number } | null>(null);
   /** Set when a notification was clicked; the nonce remounts the Overview so it reloads. */
   const [focus, setFocus] = useState<{ versionId: number; nonce: number } | null>(null);
   const endSplash = useCallback(() => setShowSplash(false), []);
@@ -128,8 +130,15 @@ export default function App({ initialTabsPosition, initiallyActivated, initialLo
       </header>
       <main className="content">
         {page === "overview" && <Overview key={focus?.nonce} focusVersionId={focus?.versionId} onAdd={() => setPage("add")} />}
-        {page === "add" && <Add key={pendingScan?.nonce} initialFile={pendingScan?.path ?? null} onSaved={() => setPage("overview")} />}
-        {page === "career" && <Career />}
+        {page === "add" && (
+          <Add
+            key={`${pendingScan?.nonce}-${pendingName?.nonce}`}
+            initialFile={pendingScan?.path ?? null}
+            initialClassName={pendingName?.name ?? ""}
+            onSaved={() => setPage("overview")}
+          />
+        )}
+        {page === "career" && <Career onAddDocument={(name) => (setPendingName({ name, nonce: Date.now() }), setPage("add"))} />}
         {page === "settings" && (
           <Settings
             language={lang}

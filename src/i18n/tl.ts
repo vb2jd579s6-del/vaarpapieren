@@ -286,6 +286,18 @@ export const tl: Messages = {
     deleteMessage: (vessel: string, from: string) => `Permanenteng mabubura ang panahon sa ${vessel} mula ${from}.`,
     types: { cargo: "General cargo", container: "Container ship", tanker: "Oil tanker", chemical: "Chemical tanker", gas: "Gas tanker", passenger: "Pampasaherong barko", offshore: "Offshore", tug: "Tugboat", fishing: "Pangingisda", yacht: "Yate", inland: "Inland waterways", other: "Iba pa" },
   },
+  requirements: {
+    intro: "Pumili ng posisyon para makita kung anong mga sertipiko ang kailangan at alin ang mayroon ka na.",
+    role: "Posisyon",
+    chooseRole: "Pumili ng posisyon…",
+    disclaimer: "Indikatibo, batay sa STCW. Nakadepende ang eksaktong mga kailangan sa flag state, barko at kumpanya; laging suriin sa awtoridad (hal. MARINA) o sa iyong employer.",
+    add: "Idagdag",
+    roles: { deckRating: "Deck rating (AB/OS)", engineRating: "Engine rating (oiler/wiper)", cook: "Cook", oow: "Officer of the watch (deck)", oowTanker: "Deck officer sa oil o chemical tanker", oowGas: "Deck officer sa gas tanker", master: "Kapitan", engineer: "Engineer officer" },
+    items: { coc: "Certificate of Competency (CoC)", medical: "Seafarer's Medical Certificate (PEME)", passport: "Pasaporte", dischargeBook: "Seaman's Book (SIRB)" },
+    state: { valid: "Ayos", soon: "Malapit nang mag-expire", expired: "Expired na", missing: "Kulang" },
+    matched: (name: string) => `Nahanap: ${name}`,
+    summary: (ok: number, total: number) => `${ok} sa ${total} ang ayos`,
+  },
   version: {
     superseded: "Pinalitan",
     current: "Kasalukuyan",

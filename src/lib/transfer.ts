@@ -46,6 +46,7 @@ const TRANSFERRED_SETTINGS: string[] = [
   SETTING_KEYS.thresholds,
   SETTING_KEYS.notificationsIntroDone,
   SETTING_KEYS.holderName,
+  SETTING_KEYS.careerRole,
 ];
 
 export async function buildExport(db: Db, appVersion: string, now = new Date()): Promise<ExportManifest> {

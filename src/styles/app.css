@@ -392,3 +392,15 @@ button.preview-large:hover .preview-hint, button.preview-large:focus-visible .pr
 .aboard-badge { align-self: flex-start; }
 .breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
 .sea-time .toolbar { margin: 0; }
+
+/* Career: requirements */
+.requirements { display: flex; flex-direction: column; gap: 12px; }
+.requirements > p { margin: 0; }
+.checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.checklist li { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.check-mark { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; }
+.check-valid .check-mark { background: var(--valid); }
+.check-soon .check-mark { background: var(--warning); }
+.check-expired .check-mark { background: var(--expired); }
+.check-missing .check-mark { background: var(--critical); }
+.check-text { flex: 1; display: flex; flex-direction: column; min-width: 0; }

@@ -25,10 +25,17 @@ const EMPTY_FORM: DocumentForm = {
   notes: "",
 };
 
-export function Add({ onSaved, initialFile = null }: { onSaved: () => void; initialFile?: string | null }) {
+interface AddProps {
+  onSaved: () => void;
+  initialFile?: string | null;
+  /** Prefills a new document type (from a missing requirement). */
+  initialClassName?: string;
+}
+
+export function Add({ onSaved, initialFile = null, initialClassName = "" }: AddProps) {
   const [classes, setClasses] = useState<DocumentClass[]>([]);
   const [versionCounts, setVersionCounts] = useState<Map<number, number>>(new Map());
-  const [form, setForm] = useState<DocumentForm>(EMPTY_FORM);
+  const [form, setForm] = useState<DocumentForm>(() => ({ ...EMPTY_FORM, newClassName: initialClassName }));
   const [files, setFiles] = useState<string[]>(initialFile ? [initialFile] : []);
   /** What the last added file suggests, or that it is being read. */
   const [scan, setScan] = useState<{ name: string; info: ScanInfo | null } | null>(null);

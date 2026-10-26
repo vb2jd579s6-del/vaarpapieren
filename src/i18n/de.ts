@@ -286,6 +286,18 @@ export const de: Messages = {
     deleteMessage: (vessel: string, from: string) => `Der Zeitraum auf ${vessel} ab ${from} wird endgültig gelöscht.`,
     types: { cargo: "Frachtschiff", container: "Containerschiff", tanker: "Öltanker", chemical: "Chemikalientanker", gas: "Gastanker", passenger: "Passagierschiff", offshore: "Offshore", tug: "Schlepper", fishing: "Fischerei", yacht: "Yacht", inland: "Binnenschifffahrt", other: "Sonstiges" },
   },
+  requirements: {
+    intro: "Wähle eine Funktion, um zu sehen, welche Zeugnisse sie erfordert und welche du schon hast.",
+    role: "Funktion",
+    chooseRole: "Funktion wählen …",
+    disclaimer: "Unverbindlich, auf Basis von STCW. Die genauen Anforderungen hängen von Flaggenstaat, Schiff und Reederei ab; prüfe sie immer bei der Behörde oder deinem Arbeitgeber.",
+    add: "Hinzufügen",
+    roles: { deckRating: "Matrose", engineRating: "Maschinenwart", cook: "Koch", oow: "Nautischer Wachoffizier", oowTanker: "Nautischer Offizier auf Öl- oder Chemikalientanker", oowGas: "Nautischer Offizier auf Gastanker", master: "Kapitän", engineer: "Technischer Offizier" },
+    items: { coc: "Befähigungszeugnis (CoC)", medical: "Seediensttauglichkeitszeugnis", passport: "Reisepass", dischargeBook: "Seefahrtbuch" },
+    state: { valid: "In Ordnung", soon: "Läuft bald ab", expired: "Abgelaufen", missing: "Fehlt" },
+    matched: (name: string) => `Gefunden: ${name}`,
+    summary: (ok: number, total: number) => `${ok} von ${total} in Ordnung`,
+  },
   version: {
     superseded: "Ersetzt",
     current: "Aktuell",

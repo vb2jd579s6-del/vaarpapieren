@@ -18,11 +18,11 @@ gebruiker erom vraagt.
 - [x] Teksten in zes talen.
 
 ## 2. Eisen per functie
-- [ ] `src/lib/domain/requirements.ts` (getest): ingebouwde functieprofielen (o.a. matroos,
+- [x] `src/lib/domain/requirements.ts` (getest): ingebouwde functieprofielen (o.a. matroos,
       stuurman/OOW, stuurman op tanker, kapitein, machinist, kok) met vereiste certificaten,
       elk met zoekwoorden om de documentklassen van de gebruiker te herkennen.
-- [ ] Controle: per eis geldig / verloopt binnenkort / verlopen / ontbreekt.
-- [ ] Onderdeel **Eisen per functie** in Loopbaan: functie kiezen (onthouden), checklist, en de
+- [x] Controle: per eis geldig / verloopt binnenkort / verlopen / ontbreekt.
+- [x] Onderdeel **Eisen per functie** in Loopbaan: functie kiezen (onthouden), checklist, en de
       melding dat dit indicatief is (eisen verschillen per vlagstaat en rederij).
 
 ## 3. Agenda-koppeling

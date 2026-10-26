@@ -285,6 +285,18 @@ export const nl = {
     deleteMessage: (vessel: string, from: string) => `De periode op ${vessel} vanaf ${from} wordt definitief verwijderd.`,
     types: { cargo: "Vrachtschip", container: "Containerschip", tanker: "Olietanker", chemical: "Chemicaliëntanker", gas: "Gastanker", passenger: "Passagiersschip", offshore: "Offshore", tug: "Sleepboot", fishing: "Visserij", yacht: "Jacht", inland: "Binnenvaart", other: "Overig" },
   },
+  requirements: {
+    intro: "Kies een functie, dan zie je welke certificaten je daarvoor nodig hebt en welke je al hebt.",
+    role: "Functie",
+    chooseRole: "Kies een functie…",
+    disclaimer: "Indicatief, op basis van STCW. De precieze eisen hangen af van de vlagstaat, het schip en de rederij; controleer ze altijd bij de autoriteit of je werkgever.",
+    add: "Toevoegen",
+    roles: { deckRating: "Matroos (gezel)", engineRating: "Motordrijver (gezel)", cook: "Kok", oow: "Stuurman (wachtofficier dek)", oowTanker: "Stuurman op olie- of chemicaliëntanker", oowGas: "Stuurman op gastanker", master: "Kapitein", engineer: "Werktuigkundige" },
+    items: { coc: "Vaarbevoegdheidsbewijs (CoC)", medical: "Zeevaartmedische keuring", passport: "Paspoort", dischargeBook: "Monsterboek" },
+    state: { valid: "In orde", soon: "Verloopt binnenkort", expired: "Verlopen", missing: "Ontbreekt" },
+    matched: (name: string) => `Gevonden: ${name}`,
+    summary: (ok: number, total: number) => `${ok} van ${total} in orde`,
+  },
   version: {
     superseded: "Vervangen",
     current: "Actueel",
