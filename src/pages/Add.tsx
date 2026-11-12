@@ -38,9 +38,11 @@ interface AddProps {
   pendingFile?: { path: string; nonce: number } | null;
   /** Prefills a new document type (from a missing requirement). */
   pendingName?: { name: string; nonce: number } | null;
+  /** Called with true while anything has been filled in or chosen. */
+  onDraftChange?: (hasDraft: boolean) => void;
 }
 
-export function Add({ visible, onSaved, onShow, pendingFile = null, pendingName = null }: AddProps) {
+export function Add({ visible, onSaved, onShow, pendingFile = null, pendingName = null, onDraftChange }: AddProps) {
   const [classes, setClasses] = useState<DocumentClass[]>([]);
   const [versionCounts, setVersionCounts] = useState<Map<number, number>>(new Map());
   const [form, setForm] = useState<DocumentForm>(EMPTY_FORM);
@@ -107,6 +109,9 @@ export function Add({ visible, onSaved, onShow, pendingFile = null, pendingName 
       })
       .catch((err) => setSaveError(String(err)));
   }, [visible]);
+
+  const hasDraft = files.length > 0 || (Object.keys(EMPTY_FORM) as (keyof DocumentForm)[]).some((k) => form[k] !== EMPTY_FORM[k]);
+  useEffect(() => onDraftChange?.(hasDraft), [hasDraft, onDraftChange]);
 
   const clearForm = () => {
     setForm(EMPTY_FORM);
